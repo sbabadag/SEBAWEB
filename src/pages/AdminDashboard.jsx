@@ -150,8 +150,28 @@ const AdminDashboard = () => {
       updatedProjects = [...projects, projectData];
     }
 
-    localStorage.setItem('projects', JSON.stringify(updatedProjects));
-    setProjects(updatedProjects);
+    try {
+      // Check localStorage size before saving
+      const dataString = JSON.stringify(updatedProjects);
+      const sizeInMB = new Blob([dataString]).size / (1024 * 1024);
+      
+      if (sizeInMB > 4) {
+        alert('Çok fazla resim yüklediniz. Lütfen bazı projeleri silin veya resim sayısını azaltın. (Maksimum: ~4MB)');
+        return;
+      }
+
+      localStorage.setItem('projects', dataString);
+      setProjects(updatedProjects);
+    } catch (error) {
+      if (error.name === 'QuotaExceededError') {
+        alert('Depolama alanı dolu! Lütfen bazı projeleri silin veya resim sayısını azaltın.');
+        console.error('Storage quota exceeded:', error);
+      } else {
+        alert('Proje kaydedilirken bir hata oluştu: ' + error.message);
+        console.error('Error saving project:', error);
+      }
+      return;
+    }
     
     // Reset form
     setFormData({
