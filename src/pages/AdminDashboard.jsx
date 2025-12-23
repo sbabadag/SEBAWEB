@@ -139,6 +139,13 @@ const AdminDashboard = () => {
       imagePreviews: projectImages
     });
     setEditingId(project.id);
+    
+    // Reset file input
+    const fileInput = document.getElementById('image-upload');
+    if (fileInput) {
+      fileInput.value = '';
+    }
+    
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
