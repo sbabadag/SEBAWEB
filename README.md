@@ -1,92 +1,55 @@
-# PhoenixBuild - Construction Company Website
+# SEBA Engineering Construction & Consultancy
 
-A modern, responsive website for PhoenixBuild construction company, built with React and Tailwind CSS.
+Professional engineering, construction, and consultancy services website.
 
 ## Features
 
-- **Header**: Navigation with logo and contact button
-- **Hero Section**: Eye-catching hero with call-to-action
-- **Services**: Grid display of construction services
-- **About**: Company information with image
-- **Gallery**: Image gallery showcasing projects
-- **Contact**: Contact form and information
-- **Footer**: Copyright information
+- 🌐 Multi-language support (Turkish/English)
+- 📱 Fully responsive design
+- 🎨 Modern black & white gradient design
+- 📧 Contact form with EmailJS integration
+- 🖼️ Project gallery with image management
+- 🔐 Admin panel for project management
+- 📸 Multiple image support per project
+
+## Tech Stack
+
+- React 18
+- Vite
+- Tailwind CSS
+- React Router
+- EmailJS
 
 ## Getting Started
 
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn
-
 ### Installation
 
-1. Install dependencies:
 ```bash
 npm install
 ```
 
-2. Start the development server:
+### Development
+
 ```bash
 npm run dev
 ```
 
-3. Open your browser and navigate to `http://localhost:5173`
-
-### Build for Production
+### Build
 
 ```bash
 npm run build
 ```
 
-The built files will be in the `dist` directory.
-
-### Preview Production Build
+### Preview
 
 ```bash
 npm run preview
 ```
 
-## Project Structure
+## Deployment
 
-```
-SEBAWEB_2/
-├── src/
-│   ├── components/
-│   │   ├── Header.jsx
-│   │   ├── Hero.jsx
-│   │   ├── Services.jsx
-│   │   ├── About.jsx
-│   │   ├── Gallery.jsx
-│   │   ├── Contact.jsx
-│   │   └── Footer.jsx
-│   ├── App.jsx
-│   ├── main.jsx
-│   └── index.css
-├── index.html
-├── package.json
-├── vite.config.js
-├── tailwind.config.js
-└── postcss.config.js
-```
+This project is configured for GitHub Pages deployment.
 
-## Technologies Used
+## License
 
-- **React 18**: UI library
-- **Vite**: Build tool and dev server
-- **Tailwind CSS**: Utility-first CSS framework
-- **PostCSS**: CSS processing
-
-## Design
-
-This website is based on a Figma design and implements:
-- Custom color palette matching the design system
-- Poppins and Righteous fonts
-- Responsive layout structure
-- Image assets from Figma design
-
-## Notes
-
-- Image assets are currently loaded from localhost URLs provided by Figma. You may need to download and host these images locally for production use.
-- The design uses specific color tokens defined in `tailwind.config.js` to match the Figma design system.
-
+© 2024 SEBA Engineering Construction & Consultancy. All rights reserved.
