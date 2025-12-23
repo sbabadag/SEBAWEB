@@ -7,6 +7,7 @@ const Projects = () => {
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const baseUrl = import.meta.env.BASE_URL;
 
   useEffect(() => {
     // Load projects from localStorage
@@ -22,8 +23,8 @@ const Projects = () => {
           location: "Downtown Vancouver",
           year: "2023",
           description: "A state-of-the-art commercial building featuring sustainable design and modern architecture.",
-          images: ["/assets/gallery-1.png"],
-          image: "/assets/gallery-1.png",
+          images: [`${baseUrl}assets/gallery-1.png`],
+          image: `${baseUrl}assets/gallery-1.png`,
           category: "Commercial"
         },
         {
@@ -32,8 +33,8 @@ const Projects = () => {
           location: "West End, Vancouver",
           year: "2022",
           description: "Multi-family residential complex with luxury amenities and eco-friendly construction.",
-          images: ["/assets/gallery-2.png"],
-          image: "/assets/gallery-2.png",
+          images: [`${baseUrl}assets/gallery-2.png`],
+          image: `${baseUrl}assets/gallery-2.png`,
           category: "Residential"
         },
         {
@@ -42,8 +43,8 @@ const Projects = () => {
           location: "Port of Vancouver",
           year: "2023",
           description: "Large-scale industrial facility with advanced structural engineering and safety features.",
-          images: ["/assets/gallery-3-29b6d9.png"],
-          image: "/assets/gallery-3-29b6d9.png",
+          images: [`${baseUrl}assets/gallery-3-29b6d9.png`],
+          image: `${baseUrl}assets/gallery-3-29b6d9.png`,
           category: "Industrial"
         },
         {
@@ -52,8 +53,8 @@ const Projects = () => {
           location: "Gastown, Vancouver",
           year: "2022",
           description: "Careful restoration of historic building while maintaining original architectural integrity.",
-          images: ["/assets/about-image-7994a8.png"],
-          image: "/assets/about-image-7994a8.png",
+          images: [`${baseUrl}assets/about-image-7994a8.png`],
+          image: `${baseUrl}assets/about-image-7994a8.png`,
           category: "Restoration"
         },
         {
@@ -62,8 +63,8 @@ const Projects = () => {
           location: "Burnaby, BC",
           year: "2023",
           description: "Integrated residential and commercial space with sustainable building practices.",
-          images: ["/assets/gallery-1.png"],
-          image: "/assets/gallery-1.png",
+          images: [`${baseUrl}assets/gallery-1.png`],
+          image: `${baseUrl}assets/gallery-1.png`,
           category: "Mixed-Use"
         },
         {
@@ -72,14 +73,14 @@ const Projects = () => {
           location: "UBC Campus",
           year: "2022",
           description: "Modern educational building designed for optimal learning environments and accessibility.",
-          images: ["/assets/gallery-2.png"],
-          image: "/assets/gallery-2.png",
+          images: [`${baseUrl}assets/gallery-2.png`],
+          image: `${baseUrl}assets/gallery-2.png`,
           category: "Institutional"
         },
       ];
       setProjects(defaultProjects);
     }
-  }, []);
+  }, [baseUrl]);
 
   return (
     <div className="bg-black min-h-screen w-full">

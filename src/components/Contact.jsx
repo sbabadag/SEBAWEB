@@ -65,19 +65,20 @@ const Contact = () => {
     }
   };
   
+  const baseUrl = import.meta.env.BASE_URL;
   const contactInfo = [
     {
-      icon: "/assets/icon-phone.svg",
+      icon: `${baseUrl}assets/icon-phone.svg`,
       labelKey: "contact.phone",
       value: "+90 XXX XXX XX XX"
     },
     {
-      icon: "/assets/icon-address.svg",
+      icon: `${baseUrl}assets/icon-address.svg`,
       labelKey: "contact.address",
       value: "SEBA Engineering Construction & Consultancy"
     },
     {
-      icon: "/assets/icon-address.svg",
+      icon: `${baseUrl}assets/icon-address.svg`,
       labelKey: "contact.email",
       value: "info@sebaengineering.com"
     },

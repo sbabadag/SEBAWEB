@@ -42,7 +42,7 @@ const About = () => {
               <img 
                 alt="About SEBA Engineering" 
                 className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-105" 
-                src="/assets/about-image-7994a8.png" 
+                src={`${import.meta.env.BASE_URL}assets/about-image-7994a8.png`} 
               />
               <div className="absolute inset-0 bg-black/20 group-hover:opacity-0 transition-opacity duration-500"></div>
             </div>

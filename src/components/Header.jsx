@@ -27,7 +27,7 @@ const Header = () => {
             <img 
               alt="SEBA Engineering Construction & Consultancy Logo" 
               className="h-full w-auto object-contain mix-blend-screen" 
-              src="/assets/seba-logo.png"
+              src={`${import.meta.env.BASE_URL}assets/seba-logo.png`}
               style={{
                 filter: 'brightness(1.1) contrast(1.1)',
                 backgroundColor: 'transparent'

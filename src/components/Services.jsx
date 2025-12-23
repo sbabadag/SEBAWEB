@@ -3,42 +3,43 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const Services = () => {
   const { t } = useLanguage();
+  const baseUrl = import.meta.env.BASE_URL;
   
   const services = [
     {
-      icon: "/assets/icon-building-construction.svg",
+      icon: `${baseUrl}assets/icon-building-construction.svg`,
       titleKey: "services.projectManagement"
     },
     {
-      icon: "/assets/icon-blueprints.svg",
+      icon: `${baseUrl}assets/icon-blueprints.svg`,
       titleKey: "services.designDrawing"
     },
     {
-      icon: "/assets/icon-analyse.svg",
+      icon: `${baseUrl}assets/icon-analyse.svg`,
       titleKey: "services.healthSafety"
     },
     {
-      icon: "/assets/icon-new-constructions.svg",
+      icon: `${baseUrl}assets/icon-new-constructions.svg`,
       titleKey: "services.siteServices"
     },
     {
-      icon: "/assets/icon-commercial.svg",
+      icon: `${baseUrl}assets/icon-commercial.svg`,
       titleKey: "services.manufacturing"
     },
     {
-      icon: "/assets/icon-multi-family.svg",
+      icon: `${baseUrl}assets/icon-multi-family.svg`,
       titleKey: "services.structuralSteel"
     },
     {
-      icon: "/assets/icon-corrosion.svg",
+      icon: `${baseUrl}assets/icon-corrosion.svg`,
       titleKey: "services.pressureVessels"
     },
     {
-      icon: "/assets/icon-add-home.svg",
+      icon: `${baseUrl}assets/icon-add-home.svg`,
       titleKey: "services.chimneysFlues"
     },
     {
-      icon: "/assets/icon-building-construction.svg",
+      icon: `${baseUrl}assets/icon-building-construction.svg`,
       titleKey: "services.heavyFabrication"
     },
   ];

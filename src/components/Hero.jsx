@@ -3,10 +3,11 @@ import { useLanguage } from '../contexts/LanguageContext';
 
 const Hero = () => {
   const { t } = useLanguage();
+  const baseUrl = import.meta.env.BASE_URL;
   const featureCards = [
-    { icon: "/assets/icon-unity.svg", text: "100% Happy Clients" },
-    { icon: "/assets/icon-office.svg", text: "On-Time Delivery" },
-    { icon: "/assets/icon-appstore.svg", text: "Quality Assured" },
+    { icon: `${baseUrl}assets/icon-unity.svg`, text: "100% Happy Clients" },
+    { icon: `${baseUrl}assets/icon-office.svg`, text: "On-Time Delivery" },
+    { icon: `${baseUrl}assets/icon-appstore.svg`, text: "Quality Assured" },
   ];
 
   return (
@@ -16,7 +17,7 @@ const Hero = () => {
         <img 
           alt="Construction site" 
           className="absolute inset-0 w-full h-full object-cover object-center grayscale animate-fade-in" 
-          src="/assets/hero-background.png" 
+          src={`${import.meta.env.BASE_URL}assets/hero-background.png`} 
         />
         {/* Steel Construction Background Layer */}
         <img 
@@ -48,7 +49,7 @@ const Hero = () => {
               <img 
                 alt="Phone icon" 
                 className="w-full h-full invert" 
-                src="/assets/icon-call.svg" 
+                src={`${import.meta.env.BASE_URL}assets/icon-call.svg`} 
               />
             </div>
           </button>
