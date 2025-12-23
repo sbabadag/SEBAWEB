@@ -44,27 +44,70 @@ const AdminDashboard = () => {
     }));
   };
 
-  const handleImageChange = (e) => {
+  // Compress and resize image
+  const compressImage = (file, maxWidth = 1920, maxHeight = 1920, quality = 0.7) => {
+    return new Promise((resolve) => {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let width = img.width;
+          let height = img.height;
+
+          // Calculate new dimensions
+          if (width > height) {
+            if (width > maxWidth) {
+              height = (height * maxWidth) / width;
+              width = maxWidth;
+            }
+          } else {
+            if (height > maxHeight) {
+              width = (width * maxHeight) / height;
+              height = maxHeight;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0, width, height);
+
+          canvas.toBlob(
+            (blob) => {
+              const reader = new FileReader();
+              reader.onloadend = () => resolve(reader.result);
+              reader.readAsDataURL(blob);
+            },
+            'image/jpeg',
+            quality
+          );
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const handleImageChange = async (e) => {
     const files = Array.from(e.target.files);
     if (files.length > 0) {
-      const readers = files.map(file => {
-        return new Promise((resolve) => {
-          const reader = new FileReader();
-          reader.onloadend = () => resolve(reader.result);
-          reader.readAsDataURL(file);
-        });
-      });
+      try {
+        // Compress all images
+        const compressedImages = await Promise.all(
+          files.map(file => compressImage(file))
+        );
 
-      Promise.all(readers).then(previews => {
         setFormData(prev => ({
           ...prev,
           images: [...prev.images, ...files],
-          imagePreviews: [...prev.imagePreviews, ...previews]
+          imagePreviews: [...prev.imagePreviews, ...compressedImages]
         }));
-      }).catch(error => {
-        console.error('Error reading files:', error);
-        alert('Resim yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
-      });
+      } catch (error) {
+        console.error('Error processing images:', error);
+        alert('Resim işlenirken bir hata oluştu. Lütfen tekrar deneyin.');
+      }
       
       // Reset input to allow selecting the same file again
       e.target.value = '';
