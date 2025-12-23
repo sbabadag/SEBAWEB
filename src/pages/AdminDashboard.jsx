@@ -61,7 +61,13 @@ const AdminDashboard = () => {
           images: [...prev.images, ...files],
           imagePreviews: [...prev.imagePreviews, ...previews]
         }));
+      }).catch(error => {
+        console.error('Error reading files:', error);
+        alert('Resim yüklenirken bir hata oluştu. Lütfen tekrar deneyin.');
       });
+      
+      // Reset input to allow selecting the same file again
+      e.target.value = '';
     }
   };
 
@@ -266,16 +272,20 @@ const AdminDashboard = () => {
 
               <div>
                 <label className="block font-poppins font-semibold text-white text-[14px] mb-2">
-                  {t('admin.dashboard.photos')}
+                  {t('admin.dashboard.photos')} {formData.imagePreviews.length > 0 && `(${formData.imagePreviews.length} seçili)`}
                 </label>
                 <input
                   type="file"
+                  id="image-upload"
                   accept="image/*"
                   multiple
                   onChange={handleImageChange}
-                  className="w-full bg-black border-2 border-white rounded-[12px] px-4 py-2 font-poppins text-white text-[14px] focus:outline-none focus:ring-2 focus:ring-white focus:border-white"
+                  className="w-full bg-black border-2 border-white rounded-[12px] px-4 py-2 font-poppins text-white text-[14px] focus:outline-none focus:ring-2 focus:ring-white focus:border-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200 cursor-pointer"
                   required={formData.imagePreviews.length === 0}
                 />
+                <p className="font-poppins text-gray-400 text-[12px] mt-2">
+                  Birden fazla resim seçebilirsiniz. Seçilen resimler aşağıda görünecektir.
+                </p>
                 {formData.imagePreviews.length > 0 && (
                   <div className="mt-4">
                     <p className="font-poppins text-gray-300 text-[12px] mb-2">
