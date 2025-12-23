@@ -1,0 +1,108 @@
+{
+  "nav": {
+    "services": "Hizmetler",
+    "projects": "Projeler",
+    "about": "Hakkımızda",
+    "contact": "İletişim"
+  },
+  "hero": {
+    "title": "SEBA Mühendislik",
+    "subtitle": "İnşaat ve Danışmanlık",
+    "description": "Profesyonel mühendislik, inşaat ve danışmanlık hizmetleri. Proje yönetiminden yapısal tasarıma kadar, her projede mükemmellik sunuyoruz.",
+    "callUs": "İletişime Geçin"
+  },
+  "services": {
+    "title": "Hizmetlerimiz",
+    "projectManagement": "Proje Yönetimi",
+    "designDrawing": "2D & 3D Tasarım Çizimi",
+    "healthSafety": "İş Sağlığı ve Güvenliği",
+    "siteServices": "Saha Hizmetleri",
+    "manufacturing": "Üretim Kapasitesi",
+    "structuralSteel": "Yapısal Çelik İşleri",
+    "pressureVessels": "Basınçlı Kaplar",
+    "chimneysFlues": "Bacalar ve Baca Sistemleri",
+    "heavyFabrication": "Ağır Çelik İmalatı"
+  },
+  "about": {
+    "title": "SEBA Mühendislik Hakkında",
+    "description": "SEBA Mühendislik İnşaat ve Danışmanlık, profesyonel mühendislik, inşaat ve danışmanlık hizmetleri konusunda önde gelen bir sağlayıcıdır. İnşaat Mühendisi Selahattin BABADAĞ liderliğinde, proje yönetimi, yapısal tasarım, saha hizmetleri ve ağır çelik imalatı konularında uzmanlaşmış bulunmaktayız. Ekibimiz, geniş deneyimi en son teknoloji ile birleştirerek müşterilerimize olağanüstü sonuçlar sunmaktadır. Endüstriyel, ticari ve altyapı projeleri dahil olmak üzere çeşitli sektörlerde çalışıyoruz ve her girişimde en yüksek kalite, güvenlik ve verimlilik standartlarını garanti ediyoruz."
+  },
+  "gallery": {
+    "title": "Proje Galerisi",
+    "description": "Mühendislik, inşaat ve danışmanlık hizmetlerimizdeki uzmanlığımızı sergileyen tamamlanmış projelerimizin portföyünü keşfedin."
+  },
+  "contact": {
+    "title": "İletişime geçelim!",
+    "name": "Ad",
+    "email": "E-posta",
+    "message": "Mesaj",
+    "send": "Gönder",
+    "sending": "Gönderiliyor...",
+    "successMessage": "Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.",
+    "errorMessage": "Mesaj gönderilirken bir hata oluştu. Lütfen tekrar deneyin veya doğrudan sbabadag@gmail.com adresine e-posta gönderin.",
+    "phone": "Telefon",
+    "address": "Adres",
+    "instagram": "Instagram"
+  },
+  "footer": {
+    "copyright": "Telif Hakkı © 2024 SEBA Mühendislik İnşaat ve Danışmanlık. Tüm hakları saklıdır.",
+    "owner": "Sahibi: İnş. Müh. Selahattin BABADAĞ"
+  },
+  "projects": {
+    "title": "Projelerimiz",
+    "subtitle": "Başarılı inşaat projelerimizin ve referanslarımızın portföyünü sergiliyoruz",
+    "sectionTitle": "Proje Referansları",
+    "photos": "fotoğraf",
+    "viewGallery": "Galeriyi Görüntüle",
+    "stats": {
+      "completed": "Tamamlanan Projeler",
+      "experience": "Yıl Deneyim",
+      "satisfaction": "Müşteri Memnuniyeti",
+      "team": "Takım Üyesi"
+    }
+  },
+  "admin": {
+    "login": {
+      "title": "Yönetici Girişi",
+      "subtitle": "SEBA Mühendislik Kontrol Paneli",
+      "password": "Şifre",
+      "enterPassword": "Yönetici şifresini girin",
+      "login": "Giriş Yap",
+      "defaultPassword": "Varsayılan şifre: admin123"
+    },
+    "dashboard": {
+      "title": "Yönetici Kontrol Paneli",
+      "subtitle": "Projelerinizi ve referanslarınızı yönetin",
+      "logout": "Çıkış Yap",
+      "addProject": "Yeni Proje Ekle",
+      "editProject": "Projeyi Düzenle",
+      "existingProjects": "Mevcut Projeler",
+      "noProjects": "Henüz proje yok. İlk projenizi ekleyin!",
+      "projectTitle": "Proje Başlığı",
+      "location": "Konum",
+      "year": "Yıl",
+      "category": "Kategori",
+      "description": "Açıklama",
+      "photos": "Proje Fotoğrafları * (Birden fazla seçebilirsiniz)",
+      "photosSelected": "fotoğraf seçildi",
+      "addProject": "Proje Ekle",
+      "updateProject": "Projeyi Güncelle",
+      "cancel": "İptal",
+      "edit": "Düzenle",
+      "delete": "Sil",
+      "successAdd": "Proje başarıyla eklendi!",
+      "successUpdate": "Proje başarıyla güncellendi!",
+      "successDelete": "Proje başarıyla silindi!",
+      "deleteConfirm": "Bu projeyi silmek istediğinizden emin misiniz?"
+    }
+  },
+  "galleryModal": {
+    "close": "Kapat",
+    "of": "/"
+  },
+  "common": {
+    "admin": "Yönetici",
+    "incorrectPassword": "Yanlış şifre. Lütfen tekrar deneyin."
+  }
+}
+
