@@ -9,9 +9,12 @@ import AdminLogin from './pages/AdminLogin';
 import AdminDashboard from './pages/AdminDashboard';
 
 function App() {
+  // Get base path for GitHub Pages
+  const basename = import.meta.env.BASE_URL || '/';
+  
   return (
     <LanguageProvider>
-      <Router>
+      <Router basename={basename}>
         <div className="bg-black min-h-screen w-full">
           <Routes>
             <Route path="/admin/login" element={<AdminLogin />} />
