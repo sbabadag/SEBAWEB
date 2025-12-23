@@ -70,7 +70,7 @@ const Contact = () => {
     {
       icon: `${baseUrl}assets/icon-phone.svg`,
       labelKey: "contact.phone",
-      value: "+90 XXX XXX XX XX"
+      value: "+90 532 407 8125"
     },
     {
       icon: `${baseUrl}assets/icon-address.svg`,
