@@ -8,6 +8,6 @@ export default defineConfig({
     port: 5174,
     strictPort: true,
   },
-  base: './', // For GitHub Pages
+  base: '/',
 })
 
