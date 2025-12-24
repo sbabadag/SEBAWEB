@@ -15,6 +15,16 @@ const Projects = () => {
     loadProjects();
   }, []);
 
+  // Fisher-Yates shuffle algorithm for randomizing array
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
   const loadProjects = async () => {
     try {
       setIsLoading(true);
@@ -30,7 +40,9 @@ const Projects = () => {
         if (storedProjects) {
           try {
             const parsedProjects = JSON.parse(storedProjects);
-            setProjects(Array.isArray(parsedProjects) ? parsedProjects : []);
+            const projectsArray = Array.isArray(parsedProjects) ? parsedProjects : [];
+            // Shuffle projects for random display
+            setProjects(shuffleArray(projectsArray));
           } catch (parseError) {
             console.error('Error parsing projects from localStorage:', parseError);
             setProjects([]);
@@ -39,7 +51,8 @@ const Projects = () => {
           setProjects([]);
         }
       } else {
-        setProjects(data || []);
+        // Shuffle projects for random display
+        setProjects(shuffleArray(data || []));
       }
     } catch (error) {
       console.error('Error loading projects:', error);
@@ -48,7 +61,9 @@ const Projects = () => {
       if (storedProjects) {
         try {
           const parsedProjects = JSON.parse(storedProjects);
-          setProjects(Array.isArray(parsedProjects) ? parsedProjects : []);
+          const projectsArray = Array.isArray(parsedProjects) ? parsedProjects : [];
+          // Shuffle projects for random display
+          setProjects(shuffleArray(projectsArray));
         } catch (parseError) {
           console.error('Error parsing projects from localStorage:', parseError);
           setProjects([]);
