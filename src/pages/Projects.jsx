@@ -10,77 +10,22 @@ const Projects = () => {
   const baseUrl = import.meta.env.BASE_URL;
 
   useEffect(() => {
-    // Load projects from localStorage
+    // Load projects from localStorage only
+    // No default projects - only show projects added from admin panel
     const storedProjects = localStorage.getItem('projects');
     if (storedProjects) {
-      setProjects(JSON.parse(storedProjects));
+      try {
+        const parsedProjects = JSON.parse(storedProjects);
+        setProjects(Array.isArray(parsedProjects) ? parsedProjects : []);
+      } catch (error) {
+        console.error('Error parsing projects from localStorage:', error);
+        setProjects([]);
+      }
     } else {
-      // Default projects if none exist
-      const defaultProjects = [
-        {
-          id: 1,
-          title: "Modern Office Complex",
-          location: "Downtown Vancouver",
-          year: "2023",
-          description: "A state-of-the-art commercial building featuring sustainable design and modern architecture.",
-          images: [`${baseUrl}assets/gallery-1.png`],
-          image: `${baseUrl}assets/gallery-1.png`,
-          category: "Commercial"
-        },
-        {
-          id: 2,
-          title: "Residential Tower",
-          location: "West End, Vancouver",
-          year: "2022",
-          description: "Multi-family residential complex with luxury amenities and eco-friendly construction.",
-          images: [`${baseUrl}assets/gallery-2.png`],
-          image: `${baseUrl}assets/gallery-2.png`,
-          category: "Residential"
-        },
-        {
-          id: 3,
-          title: "Industrial Warehouse",
-          location: "Port of Vancouver",
-          year: "2023",
-          description: "Large-scale industrial facility with advanced structural engineering and safety features.",
-          images: [`${baseUrl}assets/gallery-3-29b6d9.png`],
-          image: `${baseUrl}assets/gallery-3-29b6d9.png`,
-          category: "Industrial"
-        },
-        {
-          id: 4,
-          title: "Heritage Restoration",
-          location: "Gastown, Vancouver",
-          year: "2022",
-          description: "Careful restoration of historic building while maintaining original architectural integrity.",
-          images: [`${baseUrl}assets/about-image-7994a8.png`],
-          image: `${baseUrl}assets/about-image-7994a8.png`,
-          category: "Restoration"
-        },
-        {
-          id: 5,
-          title: "Mixed-Use Development",
-          location: "Burnaby, BC",
-          year: "2023",
-          description: "Integrated residential and commercial space with sustainable building practices.",
-          images: [`${baseUrl}assets/gallery-1.png`],
-          image: `${baseUrl}assets/gallery-1.png`,
-          category: "Mixed-Use"
-        },
-        {
-          id: 6,
-          title: "Educational Facility",
-          location: "UBC Campus",
-          year: "2022",
-          description: "Modern educational building designed for optimal learning environments and accessibility.",
-          images: [`${baseUrl}assets/gallery-2.png`],
-          image: `${baseUrl}assets/gallery-2.png`,
-          category: "Institutional"
-        },
-      ];
-      setProjects(defaultProjects);
+      // No projects in localStorage - show empty state
+      setProjects([]);
     }
-  }, [baseUrl]);
+  }, []);
 
   return (
     <div className="bg-black min-h-screen w-full">
@@ -109,9 +54,23 @@ const Projects = () => {
             </div>
           </div>
 
+          {/* Empty State */}
+          {projects.length === 0 && (
+            <div className="text-center py-16">
+              <p className="font-poppins text-gray-400 text-lg mb-4">
+                {t('projects.noProjects') || 'Henüz proje eklenmemiş.'}
+              </p>
+              <p className="font-poppins text-gray-500 text-sm">
+                {t('projects.addFromAdmin') || 'Admin panelinden proje ekleyebilirsiniz.'}
+              </p>
+            </div>
+          )}
+
           {/* Scattered/Distributed Projects Layout - Grid on mobile, scattered on desktop */}
-          <div className="grid grid-cols-1 md:hidden gap-6 mb-8">
-            {projects.map((project, index) => {
+          {projects.length > 0 && (
+            <>
+              <div className="grid grid-cols-1 md:hidden gap-6 mb-8">
+                {projects.map((project, index) => {
               const projectImages = project.images || (project.image ? [project.image] : []);
               const mainImage = projectImages[0] || project.image;
               const imageCount = projectImages.length;
@@ -149,10 +108,10 @@ const Projects = () => {
                 </div>
               );
             })}
-          </div>
+              </div>
 
-          {/* Desktop Scattered Layout */}
-          <div className="hidden md:block relative min-h-[2500px] lg:min-h-[3000px] w-full">
+              {/* Desktop Scattered Layout */}
+              <div className="hidden md:block relative min-h-[2500px] lg:min-h-[3000px] w-full">
             {projects.map((project, index) => {
               // Support both old format (image) and new format (images array)
               const projectImages = project.images || (project.image ? [project.image] : []);
@@ -259,7 +218,9 @@ const Projects = () => {
                 </div>
               );
             })}
-          </div>
+              </div>
+            </>
+          )}
 
           {/* Project Gallery Modal */}
           <ProjectGallery
