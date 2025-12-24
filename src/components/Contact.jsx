@@ -40,7 +40,7 @@ const Contact = () => {
       from_name: formData.name,
       from_email: formData.email,
       message: formData.message,
-      to_email: 'sbabadag@gmail.com',
+      to_email: 'info@selahattinbabadag.com',
       subject: `İletişim Formu - ${formData.name}`
     };
     
@@ -80,7 +80,7 @@ const Contact = () => {
     {
       icon: `${baseUrl}assets/icon-address.svg`,
       labelKey: "contact.email",
-      value: "info@sebaengineering.com"
+      value: "info@selahattinbabadag.com"
     },
   ];
 
