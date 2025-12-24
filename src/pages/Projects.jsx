@@ -88,8 +88,17 @@ const Projects = () => {
             </div>
           </div>
 
+          {/* Loading State */}
+          {isLoading && (
+            <div className="text-center py-16">
+              <p className="font-poppins text-gray-400 text-lg">
+                {t('projects.loading') || 'Yükleniyor...'}
+              </p>
+            </div>
+          )}
+
           {/* Empty State */}
-          {projects.length === 0 && (
+          {!isLoading && projects.length === 0 && (
             <div className="text-center py-16">
               <p className="font-poppins text-gray-400 text-lg mb-4">
                 {t('projects.noProjects') || 'Henüz proje eklenmemiş.'}
