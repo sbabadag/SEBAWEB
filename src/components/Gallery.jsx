@@ -1,8 +1,107 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../config/supabase';
 
 const Gallery = () => {
   const { t } = useLanguage();
+  const [galleryImages, setGalleryImages] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    loadGalleryImages();
+  }, []);
+
+  // Fisher-Yates shuffle algorithm for randomizing array
+  const shuffleArray = (array) => {
+    const shuffled = [...array];
+    for (let i = shuffled.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
+  };
+
+  const loadGalleryImages = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*');
+
+      if (error) {
+        console.error('Error loading projects:', error);
+        // Fallback to localStorage if Supabase fails
+        const storedProjects = localStorage.getItem('projects');
+        if (storedProjects) {
+          try {
+            const parsedProjects = JSON.parse(storedProjects);
+            const projectsArray = Array.isArray(parsedProjects) ? parsedProjects : [];
+            extractAndShuffleImages(projectsArray);
+          } catch (parseError) {
+            console.error('Error parsing projects from localStorage:', parseError);
+            setGalleryImages([]);
+          }
+        } else {
+          setGalleryImages([]);
+        }
+      } else {
+        extractAndShuffleImages(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error);
+      // Fallback to localStorage
+      const storedProjects = localStorage.getItem('projects');
+      if (storedProjects) {
+        try {
+          const parsedProjects = JSON.parse(storedProjects);
+          const projectsArray = Array.isArray(parsedProjects) ? parsedProjects : [];
+          extractAndShuffleImages(projectsArray);
+        } catch (parseError) {
+          console.error('Error parsing projects from localStorage:', parseError);
+          setGalleryImages([]);
+        }
+      } else {
+        setGalleryImages([]);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const extractAndShuffleImages = (projects) => {
+    // Extract all images from all projects
+    const allImages = [];
+    projects.forEach((project) => {
+      const projectImages = project.images || (project.image ? [project.image] : []);
+      projectImages.forEach((image) => {
+        allImages.push({
+          image,
+          projectTitle: project.title,
+          projectLocation: project.location
+        });
+      });
+    });
+
+    // Shuffle and take first 6 images for gallery
+    const shuffled = shuffleArray(allImages);
+    setGalleryImages(shuffled.slice(0, 6));
+  };
+
+  // Grid layout configurations for different image positions
+  const getGridClass = (index) => {
+    if (index === 0) {
+      return 'md:col-span-2 lg:row-span-2';
+    }
+    return '';
+  };
+
+  const getAspectClass = (index) => {
+    if (index === 0) {
+      return 'aspect-[4/3] md:aspect-auto md:h-[600px]';
+    }
+    return 'aspect-[3/4] md:h-[300px]';
+  };
+
   return (
     <section className="relative bg-black w-full py-20 md:py-32 overflow-hidden">
       {/* Background Image */}
@@ -32,53 +131,48 @@ const Gallery = () => {
 
         {/* Photography Portfolio Style Grid */}
         <div className="container mx-auto px-4 md:px-8 lg:px-16 xl:px-24">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
-          {/* Large Featured Image */}
-          <div className="md:col-span-2 lg:row-span-2 group relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer">
-            <div className="aspect-[4/3] md:aspect-auto md:h-[600px] relative">
-              <img 
-                alt="Gallery image 1" 
-                className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" 
-                src={`${import.meta.env.BASE_URL}assets/gallery-1.png`} 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                <p className="font-poppins font-semibold text-white text-lg">Construction Project</p>
-              </div>
+          {isLoading ? (
+            <div className="text-center py-16">
+              <p className="font-poppins text-gray-400 text-lg">
+                {t('gallery.loading') || 'Yükleniyor...'}
+              </p>
             </div>
-          </div>
-
-          {/* Medium Image */}
-          <div className="group relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer">
-            <div className="aspect-[3/4] md:h-[300px] relative">
-              <img 
-                alt="Gallery image 2" 
-                className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" 
-                src={`${import.meta.env.BASE_URL}assets/gallery-2.png`} 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                <p className="font-poppins font-semibold text-white text-base">Site Work</p>
-              </div>
+          ) : galleryImages.length === 0 ? (
+            <div className="text-center py-16">
+              <p className="font-poppins text-gray-400 text-lg">
+                {t('gallery.noImages') || 'Henüz resim eklenmemiş.'}
+              </p>
             </div>
-          </div>
-
-          {/* Small Image */}
-          <div className="group relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer">
-            <div className="aspect-[3/4] md:h-[300px] relative">
-              <img 
-                alt="Gallery image 3" 
-                className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" 
-                src={`${import.meta.env.BASE_URL}assets/gallery-3-29b6d9.png`} 
-              />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
-                <p className="font-poppins font-semibold text-white text-base">Detail Work</p>
-              </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-8">
+              {galleryImages.map((item, index) => (
+                <div
+                  key={index}
+                  className={`${getGridClass(index)} group relative overflow-hidden rounded-2xl shadow-2xl cursor-pointer`}
+                >
+                  <div className={`${getAspectClass(index)} relative`}>
+                    <img 
+                      alt={item.projectTitle || `Gallery image ${index + 1}`}
+                      className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" 
+                      src={item.image} 
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                    <div className="absolute bottom-0 left-0 right-0 p-4 md:p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500">
+                      <p className="font-poppins font-semibold text-white text-base md:text-lg">
+                        {item.projectTitle || 'Construction Project'}
+                      </p>
+                      {item.projectLocation && (
+                        <p className="font-poppins text-gray-300 text-sm mt-1">
+                          📍 {item.projectLocation}
+                        </p>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
-          </div>
+          )}
         </div>
-      </div>
       </div>
     </section>
   );
