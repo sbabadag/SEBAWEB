@@ -1,31 +1,65 @@
 import React, { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import ProjectGallery from '../components/ProjectGallery';
+import { supabase } from '../config/supabase';
 
 const Projects = () => {
   const { t } = useLanguage();
   const [projects, setProjects] = useState([]);
   const [selectedProject, setSelectedProject] = useState(null);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
   const baseUrl = import.meta.env.BASE_URL;
 
   useEffect(() => {
-    // Load projects from localStorage only
-    // No default projects - only show projects added from admin panel
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-      try {
-        const parsedProjects = JSON.parse(storedProjects);
-        setProjects(Array.isArray(parsedProjects) ? parsedProjects : []);
-      } catch (error) {
-        console.error('Error parsing projects from localStorage:', error);
+    loadProjects();
+  }, []);
+
+  const loadProjects = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading projects:', error);
+        // Fallback to localStorage if Supabase fails
+        const storedProjects = localStorage.getItem('projects');
+        if (storedProjects) {
+          try {
+            const parsedProjects = JSON.parse(storedProjects);
+            setProjects(Array.isArray(parsedProjects) ? parsedProjects : []);
+          } catch (parseError) {
+            console.error('Error parsing projects from localStorage:', parseError);
+            setProjects([]);
+          }
+        } else {
+          setProjects([]);
+        }
+      } else {
+        setProjects(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error);
+      // Fallback to localStorage
+      const storedProjects = localStorage.getItem('projects');
+      if (storedProjects) {
+        try {
+          const parsedProjects = JSON.parse(storedProjects);
+          setProjects(Array.isArray(parsedProjects) ? parsedProjects : []);
+        } catch (parseError) {
+          console.error('Error parsing projects from localStorage:', parseError);
+          setProjects([]);
+        }
+      } else {
         setProjects([]);
       }
-    } else {
-      // No projects in localStorage - show empty state
-      setProjects([]);
+    } finally {
+      setIsLoading(false);
     }
-  }, []);
+  };
 
   return (
     <div className="bg-black min-h-screen w-full">
@@ -67,7 +101,7 @@ const Projects = () => {
           )}
 
           {/* Scattered/Distributed Projects Layout - Grid on mobile, scattered on desktop */}
-          {projects.length > 0 && (
+          {!isLoading && projects.length > 0 && (
             <>
               <div className="grid grid-cols-1 md:hidden gap-6 mb-8">
                 {projects.map((project, index) => {

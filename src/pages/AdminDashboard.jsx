@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import { supabase } from '../config/supabase';
 
 const AdminDashboard = () => {
   const { t } = useLanguage();
@@ -17,6 +18,7 @@ const AdminDashboard = () => {
   });
   const [editingId, setEditingId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Check authentication
@@ -29,10 +31,33 @@ const AdminDashboard = () => {
     loadProjects();
   }, [navigate]);
 
-  const loadProjects = () => {
-    const storedProjects = localStorage.getItem('projects');
-    if (storedProjects) {
-      setProjects(JSON.parse(storedProjects));
+  const loadProjects = async () => {
+    try {
+      setIsLoading(true);
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading projects:', error);
+        // Fallback to localStorage if Supabase fails
+        const storedProjects = localStorage.getItem('projects');
+        if (storedProjects) {
+          setProjects(JSON.parse(storedProjects));
+        }
+      } else {
+        setProjects(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading projects:', error);
+      // Fallback to localStorage
+      const storedProjects = localStorage.getItem('projects');
+      if (storedProjects) {
+        setProjects(JSON.parse(storedProjects));
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -122,8 +147,9 @@ const AdminDashboard = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
     
     // Use the imagePreviews from form (which includes existing images when editing)
     // If editing, imagePreviews already contains existing images from handleEdit
@@ -131,7 +157,6 @@ const AdminDashboard = () => {
     const allImages = formData.imagePreviews.length > 0 ? formData.imagePreviews : [];
     
     const projectData = {
-      id: editingId || Date.now(),
       title: formData.title,
       location: formData.location,
       year: formData.year,
@@ -139,53 +164,81 @@ const AdminDashboard = () => {
       category: formData.category,
       images: allImages,
       image: allImages[0] || '', // Keep for backward compatibility
-      createdAt: editingId ? projects.find(p => p.id === editingId)?.createdAt : new Date().toISOString()
     };
 
-    let updatedProjects;
-    if (editingId) {
-      updatedProjects = projects.map(p => p.id === editingId ? projectData : p);
-      setEditingId(null);
-    } else {
-      updatedProjects = [...projects, projectData];
-    }
-
     try {
-      // Check localStorage size before saving
-      const dataString = JSON.stringify(updatedProjects);
-      const sizeInMB = new Blob([dataString]).size / (1024 * 1024);
-      
-      if (sizeInMB > 4) {
-        alert('Çok fazla resim yüklediniz. Lütfen bazı projeleri silin veya resim sayısını azaltın. (Maksimum: ~4MB)');
-        return;
-      }
+      if (editingId) {
+        // Update existing project
+        const { data, error } = await supabase
+          .from('projects')
+          .update(projectData)
+          .eq('id', editingId)
+          .select();
 
-      localStorage.setItem('projects', dataString);
-      setProjects(updatedProjects);
-    } catch (error) {
-      if (error.name === 'QuotaExceededError') {
-        alert('Depolama alanı dolu! Lütfen bazı projeleri silin veya resim sayısını azaltın.');
-        console.error('Storage quota exceeded:', error);
+        if (error) {
+          throw error;
+        }
+
+        setProjects(projects.map(p => p.id === editingId ? data[0] : p));
+        setEditingId(null);
+        setSuccessMessage(t('admin.dashboard.successUpdate'));
       } else {
-        alert('Proje kaydedilirken bir hata oluştu: ' + error.message);
-        console.error('Error saving project:', error);
-      }
-      return;
-    }
-    
-    // Reset form
-    setFormData({
-      title: '',
-      location: '',
-      year: new Date().getFullYear().toString(),
-      description: '',
-      category: 'Commercial',
-      images: [],
-      imagePreviews: []
-    });
+        // Insert new project
+        const { data, error } = await supabase
+          .from('projects')
+          .insert([projectData])
+          .select();
 
-    setSuccessMessage(editingId ? t('admin.dashboard.successUpdate') : t('admin.dashboard.successAdd'));
-    setTimeout(() => setSuccessMessage(''), 3000);
+        if (error) {
+          throw error;
+        }
+
+        setProjects([data[0], ...projects]);
+        setSuccessMessage(t('admin.dashboard.successAdd'));
+      }
+
+      // Reset form
+      setFormData({
+        title: '',
+        location: '',
+        year: new Date().getFullYear().toString(),
+        description: '',
+        category: 'Commercial',
+        images: [],
+        imagePreviews: []
+      });
+
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Error saving project:', error);
+      alert('Proje kaydedilirken bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
+      
+      // Fallback to localStorage if Supabase fails
+      try {
+        const projectDataWithId = {
+          id: editingId || Date.now(),
+          ...projectData,
+          created_at: editingId ? projects.find(p => p.id === editingId)?.created_at : new Date().toISOString()
+        };
+
+        let updatedProjects;
+        if (editingId) {
+          updatedProjects = projects.map(p => p.id === editingId ? projectDataWithId : p);
+          setEditingId(null);
+        } else {
+          updatedProjects = [...projects, projectDataWithId];
+        }
+
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+        setProjects(updatedProjects);
+        setSuccessMessage(editingId ? t('admin.dashboard.successUpdate') : t('admin.dashboard.successAdd'));
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } catch (localStorageError) {
+        console.error('Error saving to localStorage:', localStorageError);
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleEdit = (project) => {
@@ -212,13 +265,35 @@ const AdminDashboard = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm(t('admin.dashboard.deleteConfirm'))) {
-      const updatedProjects = projects.filter(p => p.id !== id);
-      localStorage.setItem('projects', JSON.stringify(updatedProjects));
-      setProjects(updatedProjects);
-      setSuccessMessage(t('admin.dashboard.successDelete'));
-      setTimeout(() => setSuccessMessage(''), 3000);
+      try {
+        setIsLoading(true);
+        const { error } = await supabase
+          .from('projects')
+          .delete()
+          .eq('id', id);
+
+        if (error) {
+          throw error;
+        }
+
+        setProjects(projects.filter(p => p.id !== id));
+        setSuccessMessage(t('admin.dashboard.successDelete'));
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } catch (error) {
+        console.error('Error deleting project:', error);
+        alert('Proje silinirken bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
+        
+        // Fallback to localStorage
+        const updatedProjects = projects.filter(p => p.id !== id);
+        localStorage.setItem('projects', JSON.stringify(updatedProjects));
+        setProjects(updatedProjects);
+        setSuccessMessage(t('admin.dashboard.successDelete'));
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -386,9 +461,10 @@ const AdminDashboard = () => {
               <div className="flex gap-4">
                 <button
                   type="submit"
-                  className="flex-1 bg-white text-black font-poppins font-semibold text-[16px] py-3 rounded-[12px] hover:bg-gray-200 transition-all shadow-lg"
+                  disabled={isLoading}
+                  className="flex-1 bg-white text-black font-poppins font-semibold text-[16px] py-3 rounded-[12px] hover:bg-gray-200 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {editingId ? t('admin.dashboard.updateProject') : t('admin.dashboard.addProject')}
+                  {isLoading ? (t('admin.dashboard.saving') || 'Kaydediliyor...') : (editingId ? t('admin.dashboard.updateProject') : t('admin.dashboard.addProject'))}
                 </button>
                 {editingId && (
                   <button
