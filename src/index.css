@@ -31,6 +31,25 @@
   animation: slide-up 0.8s ease-out;
 }
 
+/* News scroll animation */
+@keyframes scrollNews {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-50%);
+  }
+}
+
+.news-scroll-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.news-scroll-container:hover {
+  animation-play-state: paused;
+}
+
 /* Smooth scrolling */
 html {
   scroll-behavior: smooth;

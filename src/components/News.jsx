@@ -17,14 +17,14 @@ const News = () => {
       const { data, error } = await supabase
         .from('news')
         .select('*')
-        .order('created_at', { ascending: false })
-        .limit(6); // Show latest 6 news items
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Error loading news:', error);
         setNewsItems([]);
       } else {
-        setNewsItems(data || []);
+        // Duplicate items for seamless infinite scroll
+        setNewsItems(data ? [...data, ...data] : []);
       }
     } catch (error) {
       console.error('Error loading news:', error);
@@ -34,83 +34,70 @@ const News = () => {
     }
   };
 
-  if (isLoading) {
-    return (
-      <section className="bg-black py-16 md:py-24 relative overflow-hidden">
-        <div className="container mx-auto px-4 md:px-8 lg:px-16 xl:px-24 max-w-[1440px]">
-          <div className="text-center">
-            <p className="font-poppins text-white text-lg">{t('news.loading') || 'Yükleniyor...'}</p>
-          </div>
-        </div>
-      </section>
-    );
+  if (isLoading || newsItems.length === 0) {
+    return null; // Don't show if loading or no news
   }
 
-  if (newsItems.length === 0) {
-    return null; // Don't show section if no news
-  }
+  // Calculate animation duration based on number of items
+  const animationDuration = newsItems.length > 0 ? (newsItems.length / 2) * 8 : 20; // Divide by 2 because we duplicated items
 
   return (
-    <section id="news" className="bg-black py-16 md:py-24 relative overflow-hidden">
-      {/* Background Image */}
-      <div className="absolute inset-0 w-full h-full z-0">
-        <img
-          src="https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=2076&q=80"
-          alt="News background"
-          className="w-full h-full object-cover grayscale opacity-20"
-        />
-        <div className="absolute inset-0 bg-black/60" />
-      </div>
-
-      {/* Content */}
-      <div className="container mx-auto px-4 md:px-8 lg:px-16 xl:px-24 relative z-10 max-w-[1440px]">
-        <div className="text-center mb-12 md:mb-16">
-          <h2 className="font-poppins font-bold text-4xl md:text-5xl lg:text-6xl text-white mb-4">
+    <div className="hidden md:block fixed left-0 top-0 h-full w-[280px] lg:w-[320px] z-40 pointer-events-none">
+      {/* Transparent Panel */}
+      <div className="h-full w-full bg-black/30 backdrop-blur-md border-r-2 border-white/20 shadow-2xl pointer-events-auto">
+        {/* Title */}
+        <div className="p-4 border-b-2 border-white/20 bg-black/40">
+          <h3 className="font-poppins font-bold text-white text-lg lg:text-xl text-center">
             {t('news.title') || 'Haberler'}
-          </h2>
-          <p className="font-poppins text-gray-300 text-lg md:text-xl max-w-2xl mx-auto">
-            {t('news.subtitle') || 'Son haberler ve güncellemeler'}
-          </p>
+          </h3>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-          {newsItems.map((item) => (
-            <div
-              key={item.id}
-              className="bg-black/80 backdrop-blur-sm border-2 border-white rounded-2xl overflow-hidden shadow-2xl hover:shadow-3xl transition-all duration-300 hover:scale-105 group"
-            >
-              {item.image && (
-                <div className="relative h-48 md:h-56 overflow-hidden">
-                  <img
-                    src={item.image}
-                    alt={item.title}
-                    className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-500 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-all duration-300" />
-                </div>
-              )}
-              <div className="p-6">
-                {item.date && (
-                  <p className="font-poppins text-gray-400 text-sm mb-2">
-                    {new Date(item.date).toLocaleDateString('tr-TR', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric'
-                    })}
-                  </p>
+        {/* Scrolling News Container */}
+        <div className="h-[calc(100%-80px)] overflow-hidden relative">
+          <div 
+            className="news-scroll-container"
+            style={{
+              animation: `scrollNews ${animationDuration}s linear infinite`
+            }}
+          >
+            {newsItems.map((item, index) => (
+              <div
+                key={`${item.id}-${index}`}
+                className="p-4 border-b border-white/10 hover:bg-black/20 transition-colors cursor-pointer group min-h-[200px]"
+              >
+                {item.image && (
+                  <div className="relative h-32 mb-3 overflow-hidden rounded-lg">
+                    <img
+                      src={item.image}
+                      alt={item.title}
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
+                    />
+                    <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300" />
+                  </div>
                 )}
-                <h3 className="font-poppins font-bold text-white text-xl md:text-2xl mb-3 line-clamp-2">
-                  {item.title}
-                </h3>
-                <p className="font-poppins text-gray-300 text-sm md:text-base leading-relaxed line-clamp-4">
-                  {item.content}
-                </p>
+                <div className="space-y-2">
+                  {item.date && (
+                    <p className="font-poppins text-gray-400 text-xs">
+                      {new Date(item.date).toLocaleDateString('tr-TR', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  )}
+                  <h4 className="font-poppins font-bold text-white text-sm lg:text-base line-clamp-2 group-hover:text-gray-200 transition-colors">
+                    {item.title}
+                  </h4>
+                  <p className="font-poppins text-gray-300 text-xs lg:text-sm line-clamp-3 leading-relaxed">
+                    {item.content}
+                  </p>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
       </div>
-    </section>
+    </div>
   );
 };
 
