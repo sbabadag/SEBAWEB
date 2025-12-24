@@ -153,7 +153,7 @@ const Gallery = () => {
                   <div className={`${getAspectClass(index)} relative`}>
                     <img 
                       alt={item.projectTitle || `Gallery image ${index + 1}`}
-                      className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110" 
+                      className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:opacity-90 transition-all duration-700 group-hover:scale-110" 
                       src={item.image} 
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>

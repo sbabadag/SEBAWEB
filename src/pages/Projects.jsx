@@ -145,7 +145,7 @@ const Projects = () => {
                   <img 
                     alt={project.title}
                     src={mainImage}
-                    className="absolute inset-0 w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-700 group-hover:scale-110"
+                    className="absolute inset-0 w-full h-full object-cover opacity-100 group-hover:opacity-90 transition-all duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/60 to-transparent"></div>
                   <div className="absolute top-4 right-4 bg-white px-4 py-2 rounded-full shadow-xl z-10">

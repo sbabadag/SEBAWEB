@@ -70,7 +70,7 @@ const News = () => {
                     <img
                       src={item.image}
                       alt={item.title}
-                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"
+                      className="w-full h-full object-cover opacity-100 group-hover:opacity-90 transition-all duration-300"
                     />
                     <div className="absolute inset-0 bg-black/30 group-hover:bg-black/10 transition-all duration-300" />
                   </div>

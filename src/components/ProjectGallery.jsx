@@ -117,7 +117,7 @@ const ProjectGallery = ({ project, isOpen, onClose }) => {
                   <img
                     src={image}
                     alt={`Thumbnail ${index + 1}`}
-                    className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all"
+                    className="w-full h-full object-cover opacity-100 hover:opacity-90 transition-all"
                   />
                 </button>
               ))}
