@@ -5,9 +5,9 @@ const Hero = () => {
   const { t } = useLanguage();
   const baseUrl = import.meta.env.BASE_URL;
   const featureCards = [
-    { icon: `${baseUrl}assets/icon-unity.svg`, text: "100% Happy Clients" },
-    { icon: `${baseUrl}assets/icon-office.svg`, text: "On-Time Delivery" },
-    { icon: `${baseUrl}assets/icon-appstore.svg`, text: "Quality Assured" },
+    { icon: `${baseUrl}assets/icon-unity.svg`, textKey: "hero.happyClients" },
+    { icon: `${baseUrl}assets/icon-office.svg`, textKey: "hero.onTimeDelivery" },
+    { icon: `${baseUrl}assets/icon-appstore.svg`, textKey: "hero.qualityAssured" },
   ];
 
   return (
@@ -63,10 +63,10 @@ const Hero = () => {
               className="group backdrop-blur-md bg-black/40 border border-white/30 rounded-2xl p-4 flex flex-col items-center justify-center gap-3 h-32 hover:scale-105 hover:bg-black/60 transition-all duration-300 shadow-xl cursor-pointer"
             >
               <div className="w-12 h-12 relative transform group-hover:scale-110 transition-transform">
-                <img alt={card.text} className="w-full h-full invert" src={card.icon} />
+                <img alt={t(card.textKey)} className="w-full h-full invert" src={card.icon} />
               </div>
               <p className="font-poppins font-semibold text-white text-xs text-center tracking-wide leading-tight">
-                {card.text}
+                {t(card.textKey)}
               </p>
             </div>
           ))}
