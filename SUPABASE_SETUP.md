@@ -56,6 +56,42 @@ CREATE POLICY "Anyone can update projects"
 CREATE POLICY "Anyone can delete projects"
   ON projects FOR DELETE
   USING (true);
+
+-- News tablosu oluştur
+CREATE TABLE news (
+  id BIGSERIAL PRIMARY KEY,
+  title TEXT NOT NULL,
+  content TEXT NOT NULL,
+  image TEXT,
+  date DATE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Index ekle (performans için)
+CREATE INDEX idx_news_created_at ON news(created_at DESC);
+CREATE INDEX idx_news_date ON news(date DESC);
+
+-- RLS (Row Level Security) ayarları
+ALTER TABLE news ENABLE ROW LEVEL SECURITY;
+
+-- Herkesin okuyabilmesi için policy
+CREATE POLICY "News are viewable by everyone"
+  ON news FOR SELECT
+  USING (true);
+
+-- Sadece authenticated kullanıcılar yazabilir (opsiyonel - şimdilik herkes yazabilir)
+CREATE POLICY "Anyone can insert news"
+  ON news FOR INSERT
+  WITH CHECK (true);
+
+CREATE POLICY "Anyone can update news"
+  ON news FOR UPDATE
+  USING (true);
+
+CREATE POLICY "Anyone can delete news"
+  ON news FOR DELETE
+  USING (true);
 ```
 
 ## 3. API Keys Alma
@@ -125,4 +161,5 @@ GitHub Actions workflow'unu güncelleyin (`.github/workflows/deploy.yml`):
 - Free tier'da 500MB database storage ve 2GB bandwidth limiti var
 - Resimler base64 olarak saklanıyor (Supabase Storage kullanmak daha iyi olur)
 - Production'da RLS policy'lerini daha sıkı yapabilirsiniz (authentication ekleyerek)
+
 

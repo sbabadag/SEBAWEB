@@ -103,6 +103,25 @@
   "common": {
     "admin": "Admin",
     "incorrectPassword": "Incorrect password. Please try again."
+  },
+  "news": {
+    "title": "News",
+    "subtitle": "Latest news and updates",
+    "loading": "Loading...",
+    "addNews": "Add New News",
+    "editNews": "Edit News",
+    "newsTitle": "News Title",
+    "newsContent": "News Content",
+    "newsImage": "News Photo",
+    "newsDate": "Date",
+    "existingNews": "Existing News",
+    "noNews": "No news yet. Add your first news!",
+    "addNewsButton": "Add News",
+    "updateNewsButton": "Update News",
+    "successAdd": "News added successfully!",
+    "successUpdate": "News updated successfully!",
+    "successDelete": "News deleted successfully!",
+    "deleteConfirm": "Are you sure you want to delete this news?"
   }
 }
 

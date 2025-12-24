@@ -3,6 +3,7 @@ import Hero from '../components/Hero';
 import Services from '../components/Services';
 import About from '../components/About';
 import Gallery from '../components/Gallery';
+import News from '../components/News';
 import Contact from '../components/Contact';
 
 const Home = () => {
@@ -16,6 +17,7 @@ const Home = () => {
         <About />
       </div>
       <Gallery />
+      <News />
       <div id="contact">
         <Contact />
       </div>

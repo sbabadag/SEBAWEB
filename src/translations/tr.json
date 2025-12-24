@@ -103,6 +103,25 @@
   "common": {
     "admin": "Yönetici",
     "incorrectPassword": "Yanlış şifre. Lütfen tekrar deneyin."
+  },
+  "news": {
+    "title": "Haberler",
+    "subtitle": "Son haberler ve güncellemeler",
+    "loading": "Yükleniyor...",
+    "addNews": "Yeni Haber Ekle",
+    "editNews": "Haberi Düzenle",
+    "newsTitle": "Haber Başlığı",
+    "newsContent": "Haber İçeriği",
+    "newsImage": "Haber Fotoğrafı",
+    "newsDate": "Tarih",
+    "existingNews": "Mevcut Haberler",
+    "noNews": "Henüz haber yok. İlk haberinizi ekleyin!",
+    "addNewsButton": "Haber Ekle",
+    "updateNewsButton": "Haberi Güncelle",
+    "successAdd": "Haber başarıyla eklendi!",
+    "successUpdate": "Haber başarıyla güncellendi!",
+    "successDelete": "Haber başarıyla silindi!",
+    "deleteConfirm": "Bu haberi silmek istediğinizden emin misiniz?"
   }
 }
 

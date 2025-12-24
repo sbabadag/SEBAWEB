@@ -19,6 +19,17 @@ const AdminDashboard = () => {
   const [editingId, setEditingId] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  
+  // News state
+  const [newsItems, setNewsItems] = useState([]);
+  const [newsFormData, setNewsFormData] = useState({
+    title: '',
+    content: '',
+    image: '',
+    imagePreview: '',
+    date: new Date().toISOString().split('T')[0]
+  });
+  const [editingNewsId, setEditingNewsId] = useState(null);
 
   useEffect(() => {
     // Check authentication
@@ -27,8 +38,9 @@ const AdminDashboard = () => {
       return;
     }
 
-    // Load projects from localStorage
+    // Load projects and news
     loadProjects();
+    loadNews();
   }, [navigate]);
 
   const loadProjects = async () => {
@@ -302,6 +314,139 @@ const AdminDashboard = () => {
     navigate('/admin/login');
   };
 
+  // News functions
+  const loadNews = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('news')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error loading news:', error);
+        setNewsItems([]);
+      } else {
+        setNewsItems(data || []);
+      }
+    } catch (error) {
+      console.error('Error loading news:', error);
+      setNewsItems([]);
+    }
+  };
+
+  const handleNewsInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewsFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleNewsImageChange = async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      try {
+        const compressedImage = await compressImage(file);
+        setNewsFormData(prev => ({
+          ...prev,
+          image: file,
+          imagePreview: compressedImage
+        }));
+      } catch (error) {
+        console.error('Error processing image:', error);
+        alert('Resim işlenirken bir hata oluştu. Lütfen tekrar deneyin.');
+      }
+      e.target.value = '';
+    }
+  };
+
+  const handleNewsSubmit = async (e) => {
+    e.preventDefault();
+    setIsLoading(true);
+
+    const newsData = {
+      title: newsFormData.title,
+      content: newsFormData.content,
+      image: newsFormData.imagePreview || '',
+      date: newsFormData.date || new Date().toISOString().split('T')[0]
+    };
+
+    try {
+      if (editingNewsId) {
+        const { data, error } = await supabase
+          .from('news')
+          .update(newsData)
+          .eq('id', editingNewsId)
+          .select();
+
+        if (error) throw error;
+
+        setNewsItems(newsItems.map(n => n.id === editingNewsId ? data[0] : n));
+        setEditingNewsId(null);
+        setSuccessMessage(t('news.successUpdate'));
+      } else {
+        const { data, error } = await supabase
+          .from('news')
+          .insert([newsData])
+          .select();
+
+        if (error) throw error;
+
+        setNewsItems([data[0], ...newsItems]);
+        setSuccessMessage(t('news.successAdd'));
+      }
+
+      setNewsFormData({
+        title: '',
+        content: '',
+        image: '',
+        imagePreview: '',
+        date: new Date().toISOString().split('T')[0]
+      });
+      setTimeout(() => setSuccessMessage(''), 3000);
+    } catch (error) {
+      console.error('Error saving news:', error);
+      alert('Haber kaydedilirken bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleNewsEdit = (news) => {
+    setNewsFormData({
+      title: news.title,
+      content: news.content,
+      image: '',
+      imagePreview: news.image || '',
+      date: news.date || new Date().toISOString().split('T')[0]
+    });
+    setEditingNewsId(news.id);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleNewsDelete = async (id) => {
+    if (window.confirm(t('news.deleteConfirm'))) {
+      try {
+        setIsLoading(true);
+        const { error } = await supabase
+          .from('news')
+          .delete()
+          .eq('id', id);
+
+        if (error) throw error;
+
+        setNewsItems(newsItems.filter(n => n.id !== id));
+        setSuccessMessage(t('news.successDelete'));
+        setTimeout(() => setSuccessMessage(''), 3000);
+      } catch (error) {
+        console.error('Error deleting news:', error);
+        alert('Haber silinirken bir hata oluştu: ' + (error.message || 'Bilinmeyen hata'));
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   const categories = ['Commercial', 'Residential', 'Industrial', 'Restoration', 'Mixed-Use', 'Institutional'];
 
   return (
@@ -556,6 +701,175 @@ const AdminDashboard = () => {
                   </div>
                 ))
               )}
+            </div>
+          </div>
+        </div>
+
+        {/* News Management Section */}
+        <div className="mt-12">
+          <h2 className="font-poppins font-bold text-white text-[28px] mb-6 text-center">
+            {t('news.title') || 'Haber Yönetimi'}
+          </h2>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Add/Edit News Form */}
+            <div className="bg-black border-2 border-white rounded-[20px] p-6 shadow-[0px_8px_16px_0px_rgba(255,255,255,0.2)]">
+              <h3 className="font-poppins font-bold text-white text-[24px] mb-6">
+                {editingNewsId ? t('news.editNews') : t('news.addNews')}
+              </h3>
+
+              <form onSubmit={handleNewsSubmit} className="space-y-4">
+                <div>
+                  <label className="block font-poppins font-semibold text-white text-[14px] mb-2">
+                    {t('news.newsTitle')} *
+                  </label>
+                  <input
+                    type="text"
+                    name="title"
+                    value={newsFormData.title}
+                    onChange={handleNewsInputChange}
+                    className="w-full bg-black border-2 border-white rounded-[12px] px-4 py-2 font-poppins text-white text-[16px] focus:outline-none focus:ring-2 focus:ring-white focus:border-white placeholder-gray-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-poppins font-semibold text-white text-[14px] mb-2">
+                    {t('news.newsContent')} *
+                  </label>
+                  <textarea
+                    name="content"
+                    value={newsFormData.content}
+                    onChange={handleNewsInputChange}
+                    rows={6}
+                    className="w-full bg-black border-2 border-white rounded-[12px] px-4 py-2 font-poppins text-white text-[16px] focus:outline-none focus:ring-2 focus:ring-white focus:border-white resize-none placeholder-gray-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-poppins font-semibold text-white text-[14px] mb-2">
+                    {t('news.newsDate')} *
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={newsFormData.date}
+                    onChange={handleNewsInputChange}
+                    className="w-full bg-black border-2 border-white rounded-[12px] px-4 py-2 font-poppins text-white text-[16px] focus:outline-none focus:ring-2 focus:ring-white focus:border-white placeholder-gray-500"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block font-poppins font-semibold text-white text-[14px] mb-2">
+                    {t('news.newsImage')}
+                  </label>
+                  <input
+                    type="file"
+                    id="news-image-upload"
+                    accept="image/*"
+                    onChange={handleNewsImageChange}
+                    className="w-full bg-black border-2 border-white rounded-[12px] px-4 py-2 font-poppins text-white text-[14px] focus:outline-none focus:ring-2 focus:ring-white focus:border-white file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-white file:text-black hover:file:bg-gray-200 cursor-pointer"
+                  />
+                  {newsFormData.imagePreview && (
+                    <div className="mt-4">
+                      <img
+                        src={newsFormData.imagePreview}
+                        alt="Preview"
+                        className="w-full h-48 object-cover rounded-[8px]"
+                      />
+                    </div>
+                  )}
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="submit"
+                    disabled={isLoading}
+                    className="flex-1 bg-white text-black font-poppins font-semibold text-[16px] py-3 rounded-[12px] hover:bg-gray-200 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isLoading ? (t('admin.dashboard.saving') || 'Kaydediliyor...') : (editingNewsId ? t('news.updateNewsButton') : t('news.addNewsButton'))}
+                  </button>
+                  {editingNewsId && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setEditingNewsId(null);
+                        setNewsFormData({
+                          title: '',
+                          content: '',
+                          image: '',
+                          imagePreview: '',
+                          date: new Date().toISOString().split('T')[0]
+                        });
+                      }}
+                      className="flex-1 bg-gray-800 text-white border-2 border-white font-poppins font-semibold text-[16px] py-3 rounded-[12px] hover:bg-gray-700 transition-all"
+                    >
+                      {t('admin.dashboard.cancel')}
+                    </button>
+                  )}
+                </div>
+              </form>
+            </div>
+
+            {/* News List */}
+            <div className="bg-black border-2 border-white rounded-[20px] p-6 shadow-[0px_8px_16px_0px_rgba(255,255,255,0.2)]">
+              <h3 className="font-poppins font-bold text-white text-[24px] mb-6">
+                {t('news.existingNews')} ({newsItems.length})
+              </h3>
+
+              <div className="space-y-4 max-h-[600px] overflow-y-auto">
+                {newsItems.length === 0 ? (
+                  <p className="text-center font-poppins text-gray-300 py-8">
+                    {t('news.noNews')}
+                  </p>
+                ) : (
+                  newsItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className="bg-black rounded-[12px] p-4 border-2 border-white"
+                    >
+                      <div className="flex gap-4">
+                        {item.image && (
+                          <div className="relative">
+                            <img
+                              src={item.image}
+                              alt={item.title}
+                              className="w-[100px] h-[100px] object-cover rounded-[8px] grayscale"
+                            />
+                          </div>
+                        )}
+                        <div className="flex-1">
+                          <h4 className="font-poppins font-semibold text-white text-[16px] mb-1">
+                            {item.title}
+                          </h4>
+                          <p className="font-poppins text-gray-300 text-[12px] mb-2">
+                            {item.date ? new Date(item.date).toLocaleDateString('tr-TR') : 'Tarih yok'}
+                          </p>
+                          <p className="font-poppins text-gray-400 text-[14px] line-clamp-2">
+                            {item.content}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex gap-2 mt-3">
+                        <button
+                          onClick={() => handleNewsEdit(item)}
+                          className="flex-1 bg-white text-black font-poppins font-semibold text-[12px] py-2 rounded-[8px] hover:bg-gray-200 transition-all shadow-md"
+                        >
+                          {t('admin.dashboard.edit')}
+                        </button>
+                        <button
+                          onClick={() => handleNewsDelete(item.id)}
+                          className="flex-1 bg-black text-white border-2 border-white font-poppins font-semibold text-[12px] py-2 rounded-[8px] hover:bg-gray-900 transition-all shadow-md"
+                        >
+                          {t('admin.dashboard.delete')}
+                        </button>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
             </div>
           </div>
         </div>
