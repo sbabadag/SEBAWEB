@@ -1,14 +1,28 @@
 import React from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useLocation } from 'react-router-dom';
 
 const Hero = () => {
   const { t } = useLanguage();
+  const location = useLocation();
   const baseUrl = import.meta.env.BASE_URL;
   const featureCards = [
     { icon: `${baseUrl}assets/icon-unity.svg`, textKey: "hero.happyClients" },
     { icon: `${baseUrl}assets/icon-office.svg`, textKey: "hero.onTimeDelivery" },
     { icon: `${baseUrl}assets/icon-appstore.svg`, textKey: "hero.qualityAssured" },
   ];
+
+  const scrollToContact = () => {
+    if (location.pathname !== '/') {
+      // If not on home page, navigate to home first
+      window.location.href = '/#contact';
+    } else {
+      const element = document.getElementById('contact');
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
     <div className="relative h-screen w-full overflow-hidden">
@@ -41,7 +55,10 @@ const Hero = () => {
               {t('hero.description')}
             </p>
           </div>
-          <button className="group bg-white text-black rounded-full h-14 md:h-16 w-auto px-8 md:px-10 flex items-center justify-center gap-3 hover:bg-gray-200 transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-105">
+          <button 
+            onClick={scrollToContact}
+            className="group bg-white text-black rounded-full h-14 md:h-16 w-auto px-8 md:px-10 flex items-center justify-center gap-3 hover:bg-gray-200 transition-all duration-300 shadow-2xl hover:shadow-3xl hover:scale-105"
+          >
             <p className="font-poppins font-semibold text-black text-base md:text-lg leading-normal">
               {t('hero.callUs')}
             </p>
