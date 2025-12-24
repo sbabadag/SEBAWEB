@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -6,6 +6,7 @@ import LanguageSwitcher from './LanguageSwitcher';
 const Header = () => {
   const location = useLocation();
   const { t } = useLanguage();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const scrollToSection = (sectionId) => {
     if (location.pathname !== '/') {
@@ -69,10 +70,75 @@ const Header = () => {
         </nav>
         
         {/* Mobile Menu Button */}
-        <div className="md:hidden">
+        <div className="md:hidden flex items-center gap-3">
           <LanguageSwitcher />
+          <button
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+            aria-label="Menu"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth="2"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              {isMobileMenuOpen ? (
+                <path d="M6 18L18 6M6 6l12 12" />
+              ) : (
+                <path d="M4 6h16M4 12h16M4 18h16" />
+              )}
+            </svg>
+          </button>
         </div>
       </div>
+
+      {/* Mobile Menu */}
+      {isMobileMenuOpen && (
+        <div className="md:hidden bg-black border-t-2 border-white">
+          <nav className="container mx-auto px-4 py-4 max-w-[1440px] flex flex-col gap-4">
+            <button
+              onClick={() => {
+                scrollToSection('services');
+                setIsMobileMenuOpen(false);
+              }}
+              className="font-poppins font-semibold text-white text-base py-3 text-left hover:text-gray-300 transition-colors border-b border-white/20"
+            >
+              {t('nav.services')}
+            </button>
+            <Link
+              to="/projects"
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="font-poppins font-semibold text-white text-base py-3 text-left hover:text-gray-300 transition-colors border-b border-white/20"
+            >
+              {t('nav.projects')}
+            </Link>
+            <button
+              onClick={() => {
+                scrollToSection('about');
+                setIsMobileMenuOpen(false);
+              }}
+              className="font-poppins font-semibold text-white text-base py-3 text-left hover:text-gray-300 transition-colors border-b border-white/20"
+            >
+              {t('nav.about')}
+            </button>
+            <button
+              onClick={() => {
+                scrollToSection('contact');
+                setIsMobileMenuOpen(false);
+              }}
+              className="bg-white text-black border-2 border-white rounded-full px-6 py-3 flex items-center justify-center hover:bg-gray-200 transition-all shadow-lg mt-2"
+            >
+              <p className="font-poppins font-semibold text-black text-base leading-normal">
+                {t('nav.contact')}
+              </p>
+            </button>
+          </nav>
+        </div>
+      )}
     </header>
   );
 };
