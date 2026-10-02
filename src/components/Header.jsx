@@ -52,6 +52,13 @@ const Header = () => {
             <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
           </Link>
           <button 
+            onClick={() => scrollToSection('software')}
+            className="font-poppins font-semibold text-white text-sm lg:text-base leading-normal hover:text-gray-300 transition-colors relative group"
+          >
+            {t('nav.software')}
+            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-white group-hover:w-full transition-all duration-300"></span>
+          </button>
+          <button 
             onClick={() => scrollToSection('about')}
             className="font-poppins font-semibold text-white text-sm lg:text-base leading-normal hover:text-gray-300 transition-colors relative group"
           >
@@ -116,6 +123,15 @@ const Header = () => {
             >
               {t('nav.projects')}
             </Link>
+            <button
+              onClick={() => {
+                scrollToSection('software');
+                setIsMobileMenuOpen(false);
+              }}
+              className="font-poppins font-semibold text-white text-base py-3 text-left hover:text-gray-300 transition-colors border-b border-white/20"
+            >
+              {t('nav.software')}
+            </button>
             <button
               onClick={() => {
                 scrollToSection('about');

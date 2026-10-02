@@ -2,6 +2,7 @@
   "nav": {
     "services": "Services",
     "projects": "Projects",
+    "software": "Software",
     "about": "About us",
     "contact": "Contact us"
   },
@@ -63,6 +64,32 @@
       "satisfaction": "Client Satisfaction",
       "team": "Team Members"
     }
+  },
+  "software": {
+    "eyebrow": "SEBA Software",
+    "title": "Our Engineering Software",
+    "description": "We share the in-house engineering tools we develop and use in our daily workflow, free of charge.",
+    "name": "Composite Beam Design",
+    "version": "Version 1.0",
+    "lead": "A desktop application that designs composite steel-concrete beams on ribbed (trapezoidal decking) floors to TS EN 1994-1-1 (Eurocode 4) with the Turkish National Annex. It computes the design forces itself, tries every IPE/HEA section to find the lightest solution and produces a colour Word report.",
+    "f1": "Dead loads are computed automatically (steel + concrete + decking); you only enter the extra dead and live loads",
+    "f2": "37 IPE/HEA sections are checked and the lightest passing section is selected",
+    "f3": "Rib spacing optimisation: the solution using the least steel per m² of floor",
+    "f4": "Decking check: bending, web crushing and deflection",
+    "f5": "You enter the stud diameter; the length and the number are calculated automatically",
+    "f6": "Colour, tabular Word (RTF) report and a calculation engine cross-checked against hand calculations",
+    "howTitle": "Installation (3 steps)",
+    "how1": "Download the package (68 MB)",
+    "how2": "Extract the zip into a folder",
+    "how3": "Double-click KURULUM.cmd",
+    "downloadLabel": "Free download",
+    "sizeValue": "68 MB",
+    "reqValue": "Windows 10 / 11 (64-bit) — no .NET installation required",
+    "download": "Download",
+    "releases": "All versions and release notes",
+    "manual": "The package includes a 579-line user manual.",
+    "verified": "Calculation engine verified by 92 automated tests.",
+    "note": "An engineering calculation tool; final design responsibility remains with the user engineer."
   },
   "admin": {
     "login": {

@@ -2,6 +2,7 @@
   "nav": {
     "services": "Hizmetler",
     "projects": "Projeler",
+    "software": "Yazılım",
     "about": "Hakkımızda",
     "contact": "İletişim"
   },
@@ -63,6 +64,32 @@
       "satisfaction": "Müşteri Memnuniyeti",
       "team": "Takım Üyesi"
     }
+  },
+  "software": {
+    "eyebrow": "SEBA Yazılım",
+    "title": "Mühendislik Yazılımlarımız",
+    "description": "Kendi projelerimizde geliştirdiğimiz ve günlük iş akışımızda kullandığımız mühendislik araçlarını ücretsiz paylaşıyoruz.",
+    "name": "Kompozit Kiriş Tasarımı",
+    "version": "Sürüm 1.0",
+    "lead": "Nervürlü (trapez sac) döşemeye oturan kompozit çelik-beton kirişlerin TS EN 1994-1-1 (Eurocode 4) ve Türkiye Ulusal Eki'ne göre tasarımını yapan masaüstü uygulaması. Kesit tesirlerini kendisi hesaplar, tüm IPE/HEA kesitlerini deneyerek ağırlıkça en hafif çözümü bulur ve renkli Word raporu üretir.",
+    "f1": "Zati yükler otomatik hesaplanır (çelik + beton + trapez sac); siz yalnızca ekstra zati ve hareketli yükü girersiniz",
+    "f2": "37 IPE/HEA kesiti denenir, tüm kontrolleri sağlayan en hafif kesit seçilir",
+    "f3": "Nervür aralığı optimizasyonu: m² döşeme başına en az çelik tüketen çözüm",
+    "f4": "Kalıp sacı kontrolü: eğilme, mesnet ezilmesi ve sehim",
+    "f5": "Stud çapını siz girersiniz; boyunu ve sayısını program hesaplar",
+    "f6": "Renkli, tablolu Word (RTF) rapor ve el hesaplarıyla çapraz doğrulanmış hesap çekirdeği",
+    "howTitle": "Kurulum (3 adım)",
+    "how1": "Paketi indirin (68 MB)",
+    "how2": "Zip dosyasını bir klasöre açın",
+    "how3": "KURULUM.cmd dosyasına çift tıklayın",
+    "downloadLabel": "Ücretsiz indir",
+    "sizeValue": "68 MB",
+    "reqValue": "Windows 10 / 11 (64-bit) — .NET kurulumu gerekmez",
+    "download": "İndir",
+    "releases": "Tüm sürümler ve sürüm notları",
+    "manual": "Kurulum paketinin içinde 579 satırlık kullanım kılavuzu bulunur.",
+    "verified": "92 otomatik test ile doğrulanmış hesap çekirdeği.",
+    "note": "Mühendislik hesap aracıdır; nihai tasarımın sorumluluğu kullanıcı mühendise aittir."
   },
   "admin": {
     "login": {
