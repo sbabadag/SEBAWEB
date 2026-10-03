@@ -95,10 +95,12 @@
     "login": {
       "title": "Yönetici Girişi",
       "subtitle": "SEBA Mühendislik Kontrol Paneli",
+      "email": "E-posta",
+      "enterEmail": "Yönetici e-postasını girin",
       "password": "Şifre",
       "enterPassword": "Yönetici şifresini girin",
       "login": "Giriş Yap",
-      "defaultPassword": "Varsayılan şifre: admin123"
+      "loggingIn": "Giriş yapılıyor..."
     },
     "dashboard": {
       "title": "Yönetici Kontrol Paneli",

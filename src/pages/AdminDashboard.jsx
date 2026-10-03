@@ -32,15 +32,31 @@ const AdminDashboard = () => {
   const [editingNewsId, setEditingNewsId] = useState(null);
 
   useEffect(() => {
-    // Check authentication
-    if (localStorage.getItem('adminAuthenticated') !== 'true') {
-      navigate('/admin/login');
-      return;
-    }
+    let active = true;
 
-    // Load projects and news
-    loadProjects();
-    loadNews();
+    // Kimlik doğrulama: Supabase oturumu SUNUCU tarafında kontrol edilir.
+    // (Eskiden sadece localStorage'daki bir bayrağa bakılıyordu; bu, tarayıcı
+    // konsolundan tek satırla atlatılabiliyordu.)
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (!active) return;
+      if (!session) {
+        navigate('/admin/login');
+        return;
+      }
+      loadProjects();
+      loadNews();
+    });
+
+    const { data: listener } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        if (!session) navigate('/admin/login');
+      }
+    );
+
+    return () => {
+      active = false;
+      listener?.subscription?.unsubscribe?.();
+    };
   }, [navigate]);
 
   const loadProjects = async () => {
@@ -309,8 +325,8 @@ const AdminDashboard = () => {
     }
   };
 
-  const handleLogout = () => {
-    localStorage.removeItem('adminAuthenticated');
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
     navigate('/admin/login');
   };
 

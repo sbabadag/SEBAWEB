@@ -95,10 +95,12 @@
     "login": {
       "title": "Admin Login",
       "subtitle": "SEBA Engineering Control Panel",
+      "email": "Email",
+      "enterEmail": "Enter admin email",
       "password": "Password",
       "enterPassword": "Enter admin password",
       "login": "Login",
-      "defaultPassword": "Default password: admin123"
+      "loggingIn": "Logging in..."
     },
     "dashboard": {
       "title": "Admin Control Panel",
