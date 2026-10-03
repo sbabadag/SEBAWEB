@@ -117,6 +117,7 @@
       "description": "Açıklama",
       "photos": "Proje Fotoğrafları * (Birden fazla seçebilirsiniz)",
       "photosSelected": "fotoğraf seçildi",
+      "saving": "Kaydediliyor...",
       "addProject": "Proje Ekle",
       "updateProject": "Projeyi Güncelle",
       "cancel": "İptal",

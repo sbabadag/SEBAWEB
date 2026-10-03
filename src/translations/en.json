@@ -117,6 +117,7 @@
       "description": "Description",
       "photos": "Project Photos * (You can select multiple)",
       "photosSelected": "photo(s) selected",
+      "saving": "Saving...",
       "addProject": "Add Project",
       "updateProject": "Update Project",
       "cancel": "Cancel",
