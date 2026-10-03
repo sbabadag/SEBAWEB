@@ -33,6 +33,26 @@
         document.head.appendChild(s);
       })();
     </script>
+
+    <!-- ------------------------------------------------------------------
+         GitHub Pages SPA yönlendirme DÜZELTMESİ
+         public/404.html alt sayfa isteklerini "?/yol" biçimine çevirir;
+         aşağıdaki betik onu tekrar "/yol" biçimine döndürür. İkisi birlikte
+         çalıştığında /admin/login gibi adresler doğrudan açılabilir.
+         (404.html'deki pathSegmentsToKeep = 0, alan adı kökte olduğu için doğru.)
+         ------------------------------------------------------------------ -->
+    <script>
+      (function (l) {
+        if (l.search[1] === '/') {
+          var decoded = l.search.slice(1).split('&').map(function (s) {
+            return s.replace(/~and~/g, '&');
+          }).join('?');
+          window.history.replaceState(null, null,
+            l.pathname.slice(0, -1) + decoded + l.hash
+          );
+        }
+      }(window.location));
+    </script>
   </head>
   <body>
     <div id="root"></div>

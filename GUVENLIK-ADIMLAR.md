@@ -1,87 +1,113 @@
-# SEBAWEB Güvenlik Düzeltmesi — Kurulum Adımları
+# SEBAWEB Güvenlik Düzeltmesi — Durum ve Kurulum
 
-**Tarih:** 03.10.2026
-**Kapsam:** Yönetici paneli kimlik doğrulaması + Supabase yazma koruması
+**Son güncelleme:** 03.10.2026
+**Site:** https://selahattinbabadag.com
+**Depo:** https://github.com/sbabadag/SEBAWEB
 
 ---
 
 ## Neydi sorun?
 
-| # | Sorun | Kanıt |
-|---|---|---|
-| 1 | Yönetici şifresi **ön yüz kodunda sabit yazılıydı** ve derlenmiş pakete giriyordu | Canlı JS paketinde şifre birebir eşleşmeyle bulundu |
-| 2 | Giriş ekranı şifreyi **ekranda yazıyordu** ("Varsayılan şifre: …") | `tr.json` / `en.json` → `defaultPassword` |
-| 3 | Giriş kontrolü yalnızca tarayıcıdaki bir bayrağa bakıyordu | `localStorage.getItem('adminAuthenticated')` |
-| 4 | Supabase tablolarına **herkese açık anahtarla yazılabiliyordu** | `projects` ve `news` INSERT denemesi yetkilendirmeyi geçti |
+| # | Sorun | Kanıt | Durum |
+|---|---|---|---|
+| 1 | Yönetici şifresi **ön yüz kodunda sabit yazılıydı** ve derlenmiş pakete giriyordu | Canlı JS paketinde şifre birebir eşleşmeyle bulundu | ✅ KAPATILDI |
+| 2 | Giriş ekranı şifreyi **ekranda yazıyordu** ("Varsayılan şifre: …") | `tr.json` / `en.json` → `defaultPassword` | ✅ KAPATILDI |
+| 3 | Giriş kontrolü yalnızca tarayıcıdaki bir bayrağa bakıyordu | `localStorage.getItem('adminAuthenticated')` | ✅ KAPATILDI |
+| 4 | Supabase tablolarına **herkese açık anahtarla yazılabiliyordu** | `projects` / `news` INSERT denemesi yetkilendirmeyi geçiyordu | ✅ KAPATILDI |
 
-3 ve 4 birlikte şu anlama geliyordu: **şifreyi hiç bilmeyen biri**, konsola tek satır yazıp panele girebiliyor, oradan da sitenin içeriğini silebiliyordu.
+1–3 birlikte şu anlama geliyordu: **şifreyi hiç bilmeyen biri**, tarayıcı konsoluna
+tek satır yazıp panele girebiliyor, oradan da sitenin içeriğini silebiliyordu.
 
 ---
 
-## Bu pakette değişen dosyalar
+## Yapılan değişiklikler
 
 | Dosya | Değişiklik |
 |---|---|
 | `src/pages/AdminLogin.jsx` | Sabit şifre kaldırıldı → **Supabase Auth** ile e-posta + şifre girişi. Ekrandaki şifre yazısı kaldırıldı. |
-| `src/pages/AdminDashboard.jsx` | `localStorage` bayrağı yerine **gerçek Supabase oturumu** kontrolü; oturum kapanınca otomatik çıkış. Çıkış `signOut()` yapıyor. |
+| `src/pages/AdminDashboard.jsx` | `localStorage` bayrağı yerine **gerçek Supabase oturumu** kontrolü; oturum kapanınca otomatik çıkış; çıkış `signOut()` ile. |
 | `src/translations/tr.json`, `en.json` | `defaultPassword` silindi; `email`, `enterEmail`, `loggingIn` eklendi. |
-| `supabase/guvenlik-rls.sql` | **YENİ** — RLS politikaları (asıl güvenlik düzeltmesi). |
+| `supabase/guvenlik-rls.sql` | RLS politikaları. **v2**: tablolardaki *tüm* politikaları kaldırıp doğru seti kurar. |
+| `index.html` | **SPA yönlendirme betiği** eklendi — alt sayfalar artık doğrudan açılabiliyor. |
+
+**İlgili commit'ler:** `1040ce9` (kod düzeltmesi), `8bf1775` (RLS v2)
 
 ---
 
-## SİZİN YAPMANIZ GEREKEN ADIMLAR
+## Doğrulanmış durum
 
-### Adım 1 — Yönetici kullanıcısını oluşturun
+Canlı API üzerinden test edildi (veriye dokunmayan yöntemle):
 
-Supabase Dashboard → **Authentication → Users → Add user → Create new user**
+| Test | Sonuç |
+|---|---|
+| `projects`'e anon yazma | HTTP **401 / `42501`** — RLS engelliyor ✅ |
+| `news`'e anon yazma | HTTP **401 / `42501`** — RLS engelliyor ✅ |
+| Herkese açık okuma | HTTP 200 ✅ (vitrin çalışıyor) |
+| Canlı JS paketinde şifre | Bulunamadı ✅ |
+| Kayıt sayısı | projects 10 · news 2 — değişmedi ✅ |
 
-- **Email:** kendi yönetici e-postanız (örn. adınız@sebakonsultancy.com)
+> **Not:** INSERT doğrudan kanıtlandı. UPDATE ve DELETE veriye zarar vermeden
+> ayırt edilemediği için doğrudan test edilmedi; aynı betikle oluşturulan
+> politikalarla korunuyorlar ve RLS'in anon rolü için zorlandığı kanıtlı.
+
+---
+
+## ⏳ SİZİN YAPMANIZ GEREKEN — kalan tek adım
+
+### Yönetici kullanıcısını oluşturun (panel girişi için)
+
+https://supabase.com/dashboard/project/djxgtphcvjshkeccnrvj/auth/users
+
+- **Add user** → **Create new user**
+- **Email:** yönetici e-postanız
 - **Password:** yeni yönetici şifreniz
-- **Auto Confirm User** seçeneğini işaretleyin (yoksa giriş yapamazsınız)
-- **Enable Email Confirmations** seçeneğini kapatın
+- ☑️ **Auto Confirm User** — işaretlenmezse giriş yapamazsınız
+- **Create user**
 
-> ⚠️ **Şifreyi bu sohbete, e-postaya veya repoya yazmayın.** Supabase şifreyi
-> kendi tarafında hash'leyerek saklar; onu bir daha hiçbir yere girmeniz
-> gerekmez. Panelden giriş yaparken kullanacaksınız.
+Ardından: **Authentication → Sign In / Providers → Email** → *"Confirm email"* **kapalı** olmalı.
 
-### Adım 2 — RLS politikalarını çalıştırın
+> ⚠️ **Şifreyi sohbete, e-postaya veya repoya yazmayın.** Supabase şifreyi
+> kendi tarafında hash'ler; başka hiçbir yere girmeniz gerekmez.
 
-Supabase Dashboard → **SQL Editor → New query** → `supabase/guvenlik-rls.sql`
-dosyasının tamamını yapıştırın → **RUN**
+### Panele nasıl girilir
 
-Bu adım atlanırsa **yazma tamamen kapanır** ve admin panelinden proje
-ekleyemezsiniz. Dosyanın sonundaki doğrulama sorgularıyla kontrol edin.
+- **Adres:** https://selahattinbabadag.com/admin/login
+  (SPA düzeltmesinden sonra doğrudan açılır; yer imine ekleyebilirsiniz)
+- Alternatif: sitenin altbilgisindeki **"Yönetici"** linki
 
-### Adım 3 — Deploy edin
+---
+
+## Deploy
 
 ```bash
-cd ~/sebaweb            # projenin bulunduğu klasör
-npm run build           # derleme hatasız geçmeli
-git push origin main    # GitHub Actions otomatik yayınlar
+cd ~/sebaweb
+npm run build
+git push origin main     # GitHub Actions otomatik yayınlar
 ```
 
-GitHub Actions workflow'unda `VITE_SUPABASE_URL` ve `VITE_SUPABASE_ANON_KEY`
-zaten tanımlı; ek bir şey gerekmiyor.
+Workflow'da `VITE_SUPABASE_URL` ve `VITE_SUPABASE_ANON_KEY` tanımlı;
+ek ayar gerekmiyor. Push, deploy anahtarıyla (`~/.ssh/sebaweb_deploy`) yapılabilir.
 
-### Adım 4 — Eski şifreyi "yanmış" sayın
+---
 
-Eski şifre **yıllardır herkese açık** durumda. Git geçmişinde, CDN
-önbelleklerinde ve arşiv sitelerinde kalır — silinmesi mümkün değil.
+## Eski şifre hakkında
 
-- Eski şifreyi başka hiçbir yerde kullanmadığınızdan emin olun
-- Yeni şifreyi de başka bir yerde kullanmayın (farklı, benzersiz olsun)
-- Mümkünse **iki adımlı doğrulamayı (2FA)** Supabase Auth ayarlarından açın
+Eski şifre **yıllardır herkese açıktı**. Git geçmişinde, CDN önbelleklerinde ve
+arşiv sitelerinde kalır — silinmesi mümkün değil.
+
+- Eski şifreyi başka hiçbir yerde kullanmayın
+- Yeni şifre de benzersiz olsun
+- Mümkünse **2FA**'yı Supabase Auth ayarlarından açın
 
 ---
 
 ## Notlar
 
-- **Anon anahtarı açıkta kalabilir.** Supabase'de bu anahtar herkese açık
-  olmak üzere tasarlanmıştır; koruma RLS ile sağlanır. Asıl düzeltme bu yüzden
-  kodda değil, veritabanı politikalarındadır.
-- **İçerik verisi büyük.** `projects.images` alanı fotoğrafları base64 olarak
-  tutuyor (tek sorgu ~3 MB döndü). Panel bir süre yavaşlarsa sebebi budur;
-  fotoğrafları Supabase Storage'a taşımak ilerideki bir iyileştirmedir.
-- **Repoda başka bekleyen değişiklikler var** (Header, Footer, Software,
-  Home, VisitorCounter vb.). Bu güvenlik commit'i yalnızca yukarıdaki
-  tabloda listelenen dosyaları içerir; diğer çalışmalar ayrı commit edilmeli.
+- **Anon anahtarı açıkta kalabilir.** Supabase'de herkese açık olmak üzere
+  tasarlanmıştır; koruma RLS ile sağlanır. Asıl düzeltme bu yüzden kodda değil,
+  veritabanı politikalarındadır.
+- **Okuma tamamen açıktır** (vitrin için gerekli). Proje verileri — base64
+  gömülü fotoğraflar dahil — internete açık okunabilir durumda.
+- **İçerik verisi büyük:** `projects.images` fotoğrafları base64 olarak tutuyor
+  (tek sorgu ~3 MB). Fotoğrafları Supabase Storage'a taşımak ilerideki
+  iyileştirmedir.
