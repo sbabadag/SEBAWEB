@@ -10,29 +10,26 @@
     <title>SEBA Engineering Construction & Consultancy</title>
 
     <!-- ------------------------------------------------------------------
-         counter.dev — ücretsiz, çerezsiz ziyaret istatistikleri
+         GoatCounter — ücretsiz ziyaret istatistikleri + sayfada görünen sayaç
          ------------------------------------------------------------------
-         Kurulum (tek kez):
-           1) https://counter.dev adresinde hesap aç (kullanıcı adı + şifre)
-           2) "Add website" -> selahattinbabadag.com
-           3) Panelde dişli (ayarlar) simgesine tıkla -> tracking kodu çıkar
-           4) O koddaki UUID'yi aşağıdaki ID değişkenine yapıştır
-         ID doldurulana kadar hiçbir istek gönderilmez (boşa trafik olmaz).
-         data-utcoffset: günlük istatistiklerin hangi saat dilimine göre
-         gruplanacağı — Türkiye = 3 (UTC+3).
+         Kurulum (tek kez, ~3 dakika):
+           1) https://www.goatcounter.com -> Sign up (e-posta + kod seç, ör. "seba")
+              Adresin: https://seba.goatcounter.com
+           2) Settings -> "Allow adding visitor counts on your website"  -> AÇIK
+              (varsayılan KAPALI; açılmazsa sayfadaki sayaç çalışmaz)
+           3) Aşağıdaki __GOATCOUNTER_CODE__ değerini seçtiğin kod ile değiştir
+         Kod girilene kadar hiçbir istek gönderilmez (boşa trafik olmaz).
          ------------------------------------------------------------------ -->
     <script>
+      window.__GOATCOUNTER_CODE__ = 'selahattinbabadag';
       (function () {
-        var ID = 'e71606c2-e52c-4ad8-8a90-2fb0e2ce1549';
-        var UTC_OFFSET = 3;                       // Türkiye (UTC+3)
-
-        if (!ID || ID.indexOf('BURAYA') === 0) return;
+        var kod = window.__GOATCOUNTER_CODE__;
+        if (!kod || kod.indexOf('BURAYA') === 0) return;
 
         var s = document.createElement('script');
-        s.defer = true;
-        s.src = 'https://cdn.counter.dev/script.js';
-        s.setAttribute('data-id', ID);
-        s.setAttribute('data-utcoffset', String(UTC_OFFSET));
+        s.async = true;
+        s.src = 'https://gc.zgo.at/count.js';
+        s.setAttribute('data-goatcounter', 'https://' + kod + '.goatcounter.com/count');
         document.head.appendChild(s);
       })();
     </script>

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
+import VisitorCounter from './VisitorCounter';
 
 const Footer = () => {
   const { t } = useLanguage();
@@ -15,12 +16,15 @@ const Footer = () => {
             {t('footer.owner')}
           </p>
         </div>
-        <Link 
-          to="/admin/login"
-          className="font-poppins text-gray-300 text-xs md:text-sm leading-normal hover:text-white transition-colors"
-        >
-          {t('common.admin')}
-        </Link>
+        <div className="flex items-center gap-4 md:gap-6">
+          <VisitorCounter />
+          <Link 
+            to="/admin/login"
+            className="font-poppins text-gray-300 text-xs md:text-sm leading-normal hover:text-white transition-colors"
+          >
+            {t('common.admin')}
+          </Link>
+        </div>
       </div>
     </footer>
   );
