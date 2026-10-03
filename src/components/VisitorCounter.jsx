@@ -6,15 +6,27 @@ const ONBELLEK = { sayi: null };
 /**
  * Sayfada görünen ziyaret sayacı (GoatCounter).
  *
- * Toplam ziyaret sayısını GoatCounter'ın herkese açık uç noktasından çeker:
- *   https://KOD.goatcounter.com/counter/TOTAL.json  ->  { "count": "1.234" }
+ * NOT: GoatCounter'ın "TOTAL" özel yolu doğrudan URL ile çağrıldığında 0
+ * dönüyor (test edildi). Bu yüzden site toplamı, sitenin herkese açık
+ * sayfalarının sayaçları toplanarak bulunur. Yeni bir sayfa eklenirse
+ * aşağıdaki SAYFALAR listesine yolunu ekleyin.
  *
- * Kurulum index.html içinde: window.__GOATCOUNTER_CODE__ = 'seba'
- * ve GoatCounter panelinde "Allow adding visitor counts on your website" AÇIK olmalı.
+ * Uç nokta: https://KOD.goatcounter.com/counter/<yol>.json -> { "count": "12" }
+ * Kurulum : index.html içinde  window.__GOATCOUNTER_CODE__ = 'selahattinbabadag'
+ *           GoatCounter > Settings > "Allow adding visitor counts on your website" AÇIK
  *
- * Kod tanımlı değilse veya istek başarısız olursa hiçbir şey göstermez
- * (site bozulmaz, boşa trafik gitmez).
+ * ÖNEMLİ: bu uç noktanın yanıtları GoatCounter tarafında 4 saate kadar
+ * önbelleklenir; sayı anlık değildir (panel 10 saniyede güncellenir).
+ * Kod tanımsızsa veya istek başarısız olursa sayaç gösterilmez.
  */
+const SAYFALAR = ['/', '/projects'];
+
+const sayiya = (d) => {
+  if (!d || !d.count) return 0;
+  // "1.234" / "1,234" gibi biçimli gelebilir -> sadece rakamları al
+  return parseInt(String(d.count).replace(/[^0-9]/g, ''), 10) || 0;
+};
+
 const VisitorCounter = () => {
   const { language } = useLanguage();
   const [count, setCount] = useState(ONBELLEK.sayi);
@@ -25,12 +37,18 @@ const VisitorCounter = () => {
     if (ONBELLEK.sayi) return;                       // zaten çekildi (StrictMode çift mount'ına dayanıklı)
 
     let iptal = false;
-    fetch(`https://${kod}.goatcounter.com/counter/TOTAL.json`)
-      .then((r) => (r.ok ? r.json() : null))
-      .then((d) => {
-        if (d && d.count) {
-          ONBELLEK.sayi = String(d.count);           // sonucu önbelleğe al
-          if (!iptal) setCount(ONBELLEK.sayi);
+    Promise.all(
+      SAYFALAR.map((p) =>
+        fetch(`https://${kod}.goatcounter.com/counter/${encodeURIComponent(p)}.json`)
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null)
+      )
+    )
+      .then((sonuclar) => {
+        const toplam = sonuclar.reduce((t, d) => t + sayiya(d), 0);
+        if (toplam > 0) {
+          ONBELLEK.sayi = toplam;                    // sonucu önbelleğe al
+          if (!iptal) setCount(toplam);
         }
       })
       .catch(() => {
@@ -45,6 +63,7 @@ const VisitorCounter = () => {
   if (!count) return null;
 
   const etiket = language === 'en' ? 'visits' : 'ziyaret';
+  const bicimli = count.toLocaleString(language === 'en' ? 'en-US' : 'tr-TR');
 
   return (
     <span
@@ -65,7 +84,7 @@ const VisitorCounter = () => {
         <circle cx="12" cy="12" r="3" />
       </svg>
       <span>
-        {count} {etiket}
+        {bicimli} {etiket}
       </span>
     </span>
   );
