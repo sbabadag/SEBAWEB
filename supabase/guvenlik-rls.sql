@@ -1,36 +1,38 @@
 -- ============================================================================
--- SEBAWEB — RLS DÜZELTME (v2)
+-- SEBAWEB — RLS DÜZELTME (v3) — AÇIK KAYIT AÇIĞINI KAPATIR
 -- ============================================================================
--- NEDEN v2: İlk betik çalıştırıldıktan sonra news korundu ama projects
--- korunmadı. Canlı API testi:
---     news     -> HTTP 401 / kod 42501  "new row violates row-level security policy"
---     projects -> HTTP 400 / kod 23502  "null value in column location ... not-null"
--- projects'te istek RLS kontrolünü geçip kısıtlamalara kadar gelmiş: yani orada
--- hâlâ anon yazmaya izin veren bir politika var.
+-- NEDEN v3:
+--   v2'de yazma politikaları `to authenticated` idi. Ancak Supabase projesinde
+--   HERKESE AÇIK KAYIT (signup) AÇIK ve e-posta otomatik onaylı
+--   (mailer_autoconfirm = true). Canlı test:
+--       POST /auth/v1/signup -> 422 "Password should be at least 6 characters"
+--   Yani istek "kayıt kapalı" diye reddedilmiyor, şifre doğrulamasına kadar
+--   geliyor — uç nokta çalışıyor.
 --
--- Sebep: Postgres'te PERMISSIVE politikalar OR'lanır. Adı farklı eski bir
--- politikayı silmeden yalnızca yeni politika eklemek işe yaramaz; eski politika
--- izin vermeye devam eder.
+--   Sonuç: sitenin paketindeki herkese açık anon anahtarını alan biri kendine
+--   hesap açıp `authenticated` rolü kazanabiliyor ve v2 politikalarıyla
+--   projelere/haberlere YAZABİLİYORDU.
 --
--- ÇÖZÜM: projects ve news üzerindeki TÜM politikaları (adı ne olursa olsun)
---         kaldırıp doğru seti sıfırdan kurmak.
+-- ÇÖZÜM: yazma politikalarını "her authenticated" yerine YALNIZCA belirli bir
+--        yönetici e-postasına bağlamak.
+--
+-- ⚠️ ÇALIŞTIRMADAN ÖNCE: aşağıdaki 'ADMIN_EPOSTANIZ@ORNEK.COM' yerine kendi
+--    yönetici e-posta adresinizi yazın (4. bölümde 6 yerde geçiyor).
+--    Doğru adresi 0. bölümdeki sorgunun çıktısından kopyalayabilirsiniz.
 --
 -- ÇALIŞTIRMA: Supabase Dashboard -> SQL Editor -> New query
---             tamamını yapıştır -> RUN. (Metin tekrar çalıştırılabilir.)
--- NOT: Bu betik yalnızca projects ve news tablolarına dokunur.
+--             tamamını yapıştır -> RUN. (Tekrar çalıştırılabilir.)
 -- ============================================================================
 
 
 -- ---------------------------------------------------------------------------
--- 0) TEŞHİS — yeni politikalar kurulmadan ÖNCE mevcut durum
---    (bu sonucu bana iletirseniz kaynağı kesin teşhis edebilirim)
+-- 0) TEŞHİS — mevcut kullanıcılar ve politikalar
+--    Yönetici e-postanızı buradan kopyalayın. Beklemediğiniz bir hesap varsa
+--    (özellikle açık kayıt yüzünden oluşmuş olabilir) silin ve bana bildirin.
 -- ---------------------------------------------------------------------------
-select c.relname             as tablo,
-       c.relrowsecurity      as rls_aktif,
-       c.relforcerowsecurity as rls_zorunlu
-from pg_class c
-join pg_namespace n on n.oid = c.relnamespace
-where n.nspname = 'public' and c.relname in ('projects', 'news');
+select id, email, created_at, last_sign_in_at
+from auth.users
+order by created_at;
 
 select tablename, policyname, cmd, roles, qual, with_check
 from pg_policies
@@ -47,8 +49,7 @@ begin
   for p in
     select tablename, policyname
     from pg_policies
-    where schemaname = 'public'
-      and tablename in ('projects', 'news')
+    where schemaname = 'public' and tablename in ('projects', 'news')
   loop
     execute format('drop policy %I on public.%I', p.policyname, p.tablename);
     raise notice 'kaldirildi: %.%', p.tablename, p.policyname;
@@ -64,7 +65,7 @@ alter table public.news     enable row level security;
 
 
 -- ---------------------------------------------------------------------------
--- 3) OKUMA — herkese açık (site vitrini için gerekli)
+-- 3) OKUMA — herkese açık (site vitrini için gerekli, değişmiyor)
 -- ---------------------------------------------------------------------------
 create policy "projects_public_read" on public.projects
   for select to anon, authenticated using (true);
@@ -74,48 +75,64 @@ create policy "news_public_read" on public.news
 
 
 -- ---------------------------------------------------------------------------
--- 4) YAZMA — yalnızca giriş yapmış (authenticated) kullanıcı
+-- 4) YAZMA — YALNIZCA sizin yönetici hesabınız
+--    ⬇️ 'ADMIN_EPOSTANIZ@ORNEK.COM' yerine kendi e-postanızı yazın (6 yerde)
 -- ---------------------------------------------------------------------------
 create policy "projects_admin_insert" on public.projects
-  for insert to authenticated with check (true);
+  for insert to authenticated
+  with check ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' );
 
 create policy "projects_admin_update" on public.projects
-  for update to authenticated using (true) with check (true);
+  for update to authenticated
+  using ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' )
+  with check ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' );
 
 create policy "projects_admin_delete" on public.projects
-  for delete to authenticated using (true);
+  for delete to authenticated
+  using ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' );
 
 create policy "news_admin_insert" on public.news
-  for insert to authenticated with check (true);
+  for insert to authenticated
+  with check ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' );
 
 create policy "news_admin_update" on public.news
-  for update to authenticated using (true) with check (true);
+  for update to authenticated
+  using ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' )
+  with check ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' );
 
 create policy "news_admin_delete" on public.news
-  for delete to authenticated using (true);
+  for delete to authenticated
+  using ( (auth.jwt() ->> 'email') = 'ADMIN_EPOSTANIZ@ORNEK.COM' );
 
 
 -- ---------------------------------------------------------------------------
--- 5) DOĞRULAMA — her iki tabloda rls_aktif = true olmalı ve toplam
---    8 politika görünmeli (2 SELECT + 6 yazma)
+-- 5) DOĞRULAMA
 -- ---------------------------------------------------------------------------
 select c.relname as tablo, c.relrowsecurity as rls_aktif
 from pg_class c
 join pg_namespace n on n.oid = c.relnamespace
 where n.nspname = 'public' and c.relname in ('projects', 'news');
 
-select tablename, policyname, cmd, roles
+select tablename, policyname, cmd, roles, qual, with_check
 from pg_policies
 where schemaname = 'public' and tablename in ('projects', 'news')
 order by tablename, cmd;
+-- Beklenen: 2 SELECT (anon+authenticated) + 6 yazma politikası; yazma
+-- politikalarının qual / with_check alanlarında E-POSTANIZ görünmeli.
+-- E-posta görünmüyorsa değiştirmeyi unutmuşsunuz demektir.
 
 
 -- ============================================================================
--- DAHA SIKI İSTERSENİZ (tek yönetici hesabı)
+-- EK ÖNERİ — HALKA AÇIK KAYDI KAPATIN (ikinci savunma hattı)
 -- ============================================================================
--- 4. bölümdeki `to authenticated` ifadelerini şu kalıpla değiştirin
--- (kendi e-posta adresinizi yazın):
---   to authenticated
---   using ( (auth.jwt() ->> 'email') = 'SIZIN-EPOSTANIZ@ornek.com' )
---   with check ( (auth.jwt() ->> 'email') = 'SIZIN-EPOSTANIZ@ornek.com' )
+-- Yukarıdaki e-posta kısıtı açığı kapatır. Yine de halka açık kaydı kapatmak
+-- iyi olur:
+--
+--   Supabase Dashboard -> Authentication -> Sign In / Providers -> Email
+--     -> "Allow new users to sign up"  -> KAPAT
+--
+-- Neden ikisi birden: e-posta kısıtı tek savunma hattı olarak kalırsa, e-posta
+-- adresiniz değiştiğinde veya ikinci bir yönetici eklediğinizde politikayı
+-- güncellemeyi unutursanız kendiniz kilitli kalırsınız. Kayıt kapalıyken ise
+-- dışarıdan hesap açmak zaten mümkün olmaz.
 -- ============================================================================
