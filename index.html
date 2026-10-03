@@ -8,6 +8,34 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Righteous&display=swap" rel="stylesheet">
     <title>SEBA Engineering Construction & Consultancy</title>
+
+    <!-- ------------------------------------------------------------------
+         counter.dev — ücretsiz, çerezsiz ziyaret istatistikleri
+         ------------------------------------------------------------------
+         Kurulum (tek kez):
+           1) https://counter.dev adresinde hesap aç (kullanıcı adı + şifre)
+           2) "Add website" -> selahattinbabadag.com
+           3) Panelde dişli (ayarlar) simgesine tıkla -> tracking kodu çıkar
+           4) O koddaki UUID'yi aşağıdaki ID değişkenine yapıştır
+         ID doldurulana kadar hiçbir istek gönderilmez (boşa trafik olmaz).
+         data-utcoffset: günlük istatistiklerin hangi saat dilimine göre
+         gruplanacağı — Türkiye = 3 (UTC+3).
+         ------------------------------------------------------------------ -->
+    <script>
+      (function () {
+        var ID = 'e71606c2-e52c-4ad8-8a90-2fb0e2ce1549';
+        var UTC_OFFSET = 3;                       // Türkiye (UTC+3)
+
+        if (!ID || ID.indexOf('BURAYA') === 0) return;
+
+        var s = document.createElement('script');
+        s.defer = true;
+        s.src = 'https://cdn.counter.dev/script.js';
+        s.setAttribute('data-id', ID);
+        s.setAttribute('data-utcoffset', String(UTC_OFFSET));
+        document.head.appendChild(s);
+      })();
+    </script>
   </head>
   <body>
     <div id="root"></div>
