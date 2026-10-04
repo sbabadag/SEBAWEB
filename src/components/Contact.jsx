@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
-import emailjs from '@emailjs/browser';
+import { supabase } from '../config/supabase';
 
 const Contact = () => {
   const { t } = useLanguage();
@@ -11,11 +11,10 @@ const Contact = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null);
-
-  // Initialize EmailJS on component mount
-  useEffect(() => {
-    emailjs.init('0XNFlUSr3dJW4nl0t');
-  }, []);
+  // Bot tuzağı: aşağıdaki "website" alanı ekranda görünmez. Gerçek kullanıcı
+  // onu görmez ve boş bırakır; form dolduran botlar genellikle doldurur.
+  // Doluysa istek sessizce yutulur.
+  const [tuzak, setTuzak] = useState('');
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -27,42 +26,37 @@ const Contact = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Bot tuzağı dolduysa sessizce çık (kullanıcıya hata göstermeye değmez,
+    // gerçek kullanıcı bu alanı hiç görmez).
+    if (tuzak.trim() !== '') {
+      return;
+    }
+
     setIsSubmitting(true);
     setSubmitStatus(null);
-    
-    // EmailJS configuration
-    const SERVICE_ID = 'service_kty7xh8';
-    const TEMPLATE_ID = 'template_idpnv0n';
-    const PUBLIC_KEY = '0XNFlUSr3dJW4nl0t';
-    
-    // EmailJS template parameters
-    const templateParams = {
-      from_name: formData.name,
-      from_email: formData.email,
-      message: formData.message,
-      to_email: 'info@selahattinbabadag.com',
-      subject: `İletişim Formu - ${formData.name}`
-    };
-    
-    try {
-      // Send email using EmailJS
-      const response = await emailjs.send(SERVICE_ID, TEMPLATE_ID, templateParams);
-      
-      if (response.status === 200) {
-        // Success
-        setFormData({
-          name: '',
-          email: '',
-          message: ''
-        });
-        setSubmitStatus('success');
-        setIsSubmitting(false);
-      }
-    } catch (error) {
-      console.error('Email gönderme hatası:', error);
+
+    // Mesaj doğrudan kendi Supabase veritabanımıza yazılır. E-posta servisi
+    // aradan çıkarıldı: Gmail OAuth yetkisi koptuğunda mesajlar kayboluyordu.
+    // Artık mesaj önce kaydedilir, okumak için yönetim paneli yeterlidir.
+    const { error } = await supabase
+      .from('contact_messages')
+      .insert([{
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim()
+      }]);
+
+    if (error) {
+      console.error('Mesaj kaydetme hatası:', error);
       setSubmitStatus('error');
       setIsSubmitting(false);
+      return;
     }
+
+    setFormData({ name: '', email: '', message: '' });
+    setSubmitStatus('success');
+    setIsSubmitting(false);
   };
   
   const baseUrl = import.meta.env.BASE_URL;
@@ -139,6 +133,17 @@ const Contact = () => {
                 rows={6}
                 className="bg-black border-2 border-white rounded-xl px-4 py-4 w-full font-poppins font-medium text-white text-base leading-normal resize-none focus:outline-none focus:ring-2 focus:ring-white focus:border-white transition-all placeholder-gray-500"
                 required
+              />
+              {/* Bot tuzağı — ekranda görünmez, gerçek kullanıcı doldurmaz */}
+              <input
+                type="text"
+                name="website"
+                value={tuzak}
+                onChange={(e) => setTuzak(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                aria-hidden="true"
+                style={{ position: 'absolute', left: '-9999px', width: '1px', height: '1px', opacity: 0 }}
               />
               {submitStatus === 'success' && (
                 <div className="bg-black border-2 border-white text-white px-4 py-3 rounded-xl text-sm">

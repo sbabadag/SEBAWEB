@@ -31,6 +31,9 @@ const AdminDashboard = () => {
   });
   const [editingNewsId, setEditingNewsId] = useState(null);
 
+  // İletişim formundan gelen mesajlar (EmailJS yerine kendi veritabanımız)
+  const [messages, setMessages] = useState([]);
+
   useEffect(() => {
     let active = true;
 
@@ -45,6 +48,7 @@ const AdminDashboard = () => {
       }
       loadProjects();
       loadNews();
+      loadMessages();
     });
 
     const { data: listener } = supabase.auth.onAuthStateChange(
@@ -348,6 +352,53 @@ const AdminDashboard = () => {
       console.error('Error loading news:', error);
       setNewsItems([]);
     }
+  };
+
+  const loadMessages = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('contact_messages')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Mesajlar yüklenemedi:', error);
+        setMessages([]);
+      } else {
+        setMessages(data || []);
+      }
+    } catch (error) {
+      console.error('Mesajlar yüklenemedi:', error);
+      setMessages([]);
+    }
+  };
+
+  const handleMessageRead = async (id, isRead) => {
+    const { error } = await supabase
+      .from('contact_messages')
+      .update({ is_read: isRead })
+      .eq('id', id);
+
+    if (error) {
+      console.error('Mesaj güncellenemedi:', error);
+      return;
+    }
+    setMessages(messages.map(m => (m.id === id ? { ...m, is_read: isRead } : m)));
+  };
+
+  const handleMessageDelete = async (id) => {
+    if (!window.confirm(t('admin.dashboard.messages.deleteConfirm'))) return;
+
+    const { error } = await supabase
+      .from('contact_messages')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Mesaj silinemedi:', error);
+      return;
+    }
+    setMessages(messages.filter(m => m.id !== id));
   };
 
   const handleNewsInputChange = (e) => {
@@ -887,6 +938,79 @@ const AdminDashboard = () => {
                 )}
               </div>
             </div>
+          </div>
+
+          {/* İletişim Mesajları Bölümü */}
+          <div className="mt-12">
+            <h2 className="font-poppins font-bold text-white text-[28px] mb-6 text-center">
+              {t('admin.dashboard.messages.title')}
+              {messages.filter(m => !m.is_read).length > 0 &&
+                ` (${messages.filter(m => !m.is_read).length})`}
+            </h2>
+
+            {messages.length === 0 ? (
+              <p className="font-poppins text-gray-400 text-center">
+                {t('admin.dashboard.messages.empty')}
+              </p>
+            ) : (
+              <div className="flex flex-col gap-4">
+                {messages.map((m) => (
+                  <div
+                    key={m.id}
+                    className={`bg-black border-2 rounded-[16px] p-5 shadow-[0px_8px_16px_0px_rgba(255,255,255,0.2)] ${
+                      m.is_read ? 'border-gray-600' : 'border-white'
+                    }`}
+                  >
+                    <div className="flex flex-wrap items-center gap-3 mb-3">
+                      {!m.is_read && (
+                        <span className="bg-white text-black font-poppins font-semibold text-[11px] px-2 py-1 rounded-[4px]">
+                          {t('admin.dashboard.messages.new')}
+                        </span>
+                      )}
+                      <h3 className="font-poppins font-semibold text-white text-[16px]">
+                        {m.name}
+                      </h3>
+                      <a
+                        href={`mailto:${m.email}`}
+                        className="font-poppins text-gray-300 text-[13px] underline break-all"
+                      >
+                        {m.email}
+                      </a>
+                      <span className="font-poppins text-gray-400 text-[12px] ml-auto">
+                        {m.created_at ? new Date(m.created_at).toLocaleString('tr-TR') : ''}
+                      </span>
+                    </div>
+
+                    <p className="font-poppins text-gray-200 text-[14px] whitespace-pre-wrap mb-4">
+                      {m.message}
+                    </p>
+
+                    <div className="flex flex-wrap gap-2">
+                      <a
+                        href={`mailto:${m.email}?subject=${encodeURIComponent('SEBA - Mesajınıza yanıt')}`}
+                        className="bg-white text-black font-poppins font-semibold text-[12px] px-4 py-2 rounded-[8px] hover:bg-gray-200 transition-all shadow-md"
+                      >
+                        {t('admin.dashboard.messages.reply')}
+                      </a>
+                      <button
+                        onClick={() => handleMessageRead(m.id, !m.is_read)}
+                        className="bg-black text-white border-2 border-white font-poppins font-semibold text-[12px] px-4 py-2 rounded-[8px] hover:bg-gray-900 transition-all shadow-md"
+                      >
+                        {m.is_read
+                          ? t('admin.dashboard.messages.markUnread')
+                          : t('admin.dashboard.messages.markRead')}
+                      </button>
+                      <button
+                        onClick={() => handleMessageDelete(m.id)}
+                        className="bg-black text-white border-2 border-white font-poppins font-semibold text-[12px] px-4 py-2 rounded-[8px] hover:bg-gray-900 transition-all shadow-md"
+                      >
+                        {t('admin.dashboard.messages.delete')}
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

@@ -118,6 +118,16 @@
       "photos": "Project Photos * (You can select multiple)",
       "photosSelected": "photo(s) selected",
       "saving": "Saving...",
+      "messages": {
+        "title": "Contact Messages",
+        "empty": "No messages yet.",
+        "new": "NEW",
+        "reply": "Reply",
+        "markRead": "Mark as read",
+        "markUnread": "Mark as unread",
+        "delete": "Delete",
+        "deleteConfirm": "Are you sure you want to delete this message?"
+      },
       "addProject": "Add Project",
       "updateProject": "Update Project",
       "cancel": "Cancel",

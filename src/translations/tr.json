@@ -118,6 +118,16 @@
       "photos": "Proje Fotoğrafları * (Birden fazla seçebilirsiniz)",
       "photosSelected": "fotoğraf seçildi",
       "saving": "Kaydediliyor...",
+      "messages": {
+        "title": "İletişim Mesajları",
+        "empty": "Henüz mesaj yok.",
+        "new": "YENİ",
+        "reply": "Yanıtla",
+        "markRead": "Okundu işaretle",
+        "markUnread": "Okunmadı işaretle",
+        "delete": "Sil",
+        "deleteConfirm": "Bu mesajı silmek istediğinize emin misiniz?"
+      },
       "addProject": "Proje Ekle",
       "updateProject": "Projeyi Güncelle",
       "cancel": "İptal",
