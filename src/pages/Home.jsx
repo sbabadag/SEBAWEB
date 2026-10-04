@@ -2,6 +2,7 @@ import React from 'react';
 import Hero from '../components/Hero';
 import Services from '../components/Services';
 import Software from '../components/Software';
+import TeklaMetraj from '../components/TeklaMetraj';
 import About from '../components/About';
 import Gallery from '../components/Gallery';
 import News from '../components/News';
@@ -22,6 +23,8 @@ const Home = () => {
         <div id="software">
           <Software />
         </div>
+        {/* TeklaMetraj bölümü kendi id'sini taşır (section id="teklametraj") */}
+        <TeklaMetraj />
         <Gallery />
         <div id="contact">
           <Contact />

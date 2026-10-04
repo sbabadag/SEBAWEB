@@ -133,22 +133,56 @@ export function epostaOlustur(m: Mesaj) {
   return { konu, metin, html };
 }
 
+/**
+ * Paylaşılan anahtarı veritabanındaki public.ayarlar tablosundan okur.
+ * Amaç: sırrın iki ayrı yere elle yazılmasından doğan eşleşmeme sorununu
+ * ortadan kaldırmak. Ortam değişkeni (BILDIRIM_ANAHTARI) veya bu tablodaki
+ * değerden HANGİSİ doğruysa istek kabul edilir.
+ * Servis anahtarı Supabase tarafından otomatik enjekte edilir; RLS'i baypas
+ * ettiği için korumalı ayarlar tablosunu okuyabilir.
+ */
+async function ayarlardanOku(): Promise<string | null> {
+  const url = Deno.env.get('SUPABASE_URL');
+  const anahtar = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY');
+  if (!url || !anahtar) return null;
+  try {
+    const yanit = await fetch(
+      `${url}/rest/v1/ayarlar?anahtar=eq.bildirim_anahtari&select=deger`,
+      {
+        headers: { apikey: anahtar, Authorization: `Bearer ${anahtar}` },
+        signal: AbortSignal.timeout(3000),
+      },
+    );
+    if (!yanit.ok) return null;
+    const satirlar = await yanit.json();
+    const deger = satirlar?.[0]?.deger;
+    return typeof deger === 'string' && deger.trim() ? deger.trim() : null;
+  } catch (e) {
+    console.warn('ayarlar okunamadi:', e);
+    return null;
+  }
+}
+
 export async function handleRequest(req: Request): Promise<Response> {
   if (req.method === 'OPTIONS') return new Response(null, { status: 204, headers: CORS });
   if (req.method !== 'POST') return yanit({ hata: 'Yalnizca POST kabul edilir' }, 405);
 
-  // İsteğe bağlı sertleştirme: BILDIRIM_ANAHTARI tanımlıysa istek, aynı değeri
-  // x-bildirim-anahtari başlığında taşımak zorundadır. Fonksiyon adresi proje
-  // referansından tahmin edilebildiği ve anon anahtarı sitenin paketinde
-  // herkese açık olduğu için, dışarıdan biri fonksiyonu çağırıp adresinize
-  // e-posta yağdırabilir; bu kontrol onu engeller.
-  const beklenenAnahtar = Deno.env.get('BILDIRIM_ANAHTARI')?.trim();
-  if (beklenenAnahtar) {
-    const gelen = req.headers.get('x-bildirim-anahtari')?.trim();
-    if (gelen !== beklenenAnahtar) {
-      console.warn('Bildirim anahtari eslesmedi');
-      return yanit({ hata: 'Yetkisiz' }, 401);
-    }
+  // Yetki: istek, paylaşılan anahtarı x-bildirim-anahtari başlığında taşımalı.
+  // Kabul edilen değerler: ortam değişkeni (BILDIRIM_ANAHTARI) VE/VEYA
+  // public.ayarlar tablosundaki değer. İkisinden biri eşleşirse yeterlidir;
+  // böylece sır tek bir yere doğru yazılmış olsa da çalışır.
+  const gelen = req.headers.get('x-bildirim-anahtari')?.trim() ?? '';
+  const adaylar = [
+    Deno.env.get('BILDIRIM_ANAHTARI')?.trim(),
+    await ayarlardanOku(),
+  ].filter((v): v is string => typeof v === 'string' && v.length > 0);
+
+  if (adaylar.length > 0 && !adaylar.includes(gelen)) {
+    console.warn('Bildirim anahtari eslesmedi');
+    return yanit({ hata: 'Yetkisiz' }, 401);
+  }
+  if (adaylar.length === 0) {
+    console.warn('UYARI: paylasilan anahtar tanimli degil, istek dogrulanmadan isleniyor');
   }
 
   let govde: unknown;

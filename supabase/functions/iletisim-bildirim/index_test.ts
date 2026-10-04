@@ -84,12 +84,20 @@ const orijinalFetch = globalThis.fetch;
 let sonIstek: { url: string; govde: any } | null = null;
 let taklitDurum = 200;
 let taklitGovde = '{"id":"abc-123"}';
+let dbAnahtari: string | null = null; // public.ayarlar taklidi
 
 globalThis.fetch = ((girdi: string | URL | Request, secenek?: RequestInit) => {
-  sonIstek = {
-    url: String(girdi),
-    govde: JSON.parse(String(secenek?.body ?? '{}')),
-  };
+  const url = String(girdi);
+  // public.ayarlar okuması taklit edilir (fonksiyon sırrı buradan da okuyor)
+  if (url.includes('/rest/v1/ayarlar')) {
+    return Promise.resolve(
+      new Response(
+        dbAnahtari === null ? '[]' : JSON.stringify([{ deger: dbAnahtari }]),
+        { status: 200, headers: { 'Content-Type': 'application/json' } },
+      ),
+    );
+  }
+  sonIstek = { url, govde: JSON.parse(String(secenek?.body ?? '{}')) };
   return Promise.resolve(
     new Response(taklitGovde, { status: taklitDurum, headers: { 'Content-Type': 'application/json' } }),
   );
@@ -97,6 +105,8 @@ globalThis.fetch = ((girdi: string | URL | Request, secenek?: RequestInit) => {
 
 Deno.env.set('RESEND_API_KEY', 're_test_anahtar');
 Deno.env.set('BILDIRIM_ALICI', 'info@selahattinbabadag.com');
+Deno.env.set('SUPABASE_URL', 'https://ornek.supabase.co');
+Deno.env.set('SUPABASE_SERVICE_ROLE_KEY', 'sahte-servis-anahtari');
 
 function postla(govde: unknown, ekBasliklar: Record<string, string> = {}) {
   return handleRequest(
@@ -137,13 +147,40 @@ dogru(String(sonIstek?.govde.html).includes('Fabrika projesi'), '   HTML gövde 
 dogru(String(sonIstek?.govde.text).includes('Fabrika projesi'), '   düz metin dolu');
 
 // paylaşılan anahtar kontrolü
-console.log('\n4) Paylaşılan anahtar (dışarıdan tetiklenmeyi engeller)');
-Deno.env.set('BILDIRIM_ANAHTARI', 'gizli123');
+console.log('\n4) Paylaşılan anahtar (ortam değişkeni VEYA veritabanı)');
+Deno.env.set('BILDIRIM_ANAHTARI', 'env-degeri');
+dbAnahtari = null;
 esit((await postla(webhookGovdesi)).status, 401, 'başlık yoksa -> 401');
-esit((await postla(webhookGovdesi, { 'x-bildirim-anahtari': 'yanlis' })).status, 401, 'yanlış anahtar -> 401');
-esit((await postla(webhookGovdesi, { 'x-bildirim-anahtari': 'gizli123' })).status, 200, 'doğru anahtar -> 200');
+esit((await postla(webhookGovdesi, { 'x-bildirim-anahtari': 'yanlis' })).status, 401, 'yanlış değer -> 401');
+esit(
+  (await postla(webhookGovdesi, { 'x-bildirim-anahtari': 'env-degeri' })).status,
+  200,
+  'ortam değişkeniyle eşleşti -> 200',
+);
+
+// ASIL SENARYO: ortam değişkeni farklı, veritabanı doğru
+dbAnahtari = 'db-degeri';
+Deno.env.set('BILDIRIM_ANAHTARI', 'env-baska-deger');
+esit(
+  (await postla(webhookGovdesi, { 'x-bildirim-anahtari': 'db-degeri' })).status,
+  200,
+  'DB doğru + env farklı -> 200  (asıl çözüm)',
+);
+esit(
+  (await postla(webhookGovdesi, { 'x-bildirim-anahtari': 'env-baska-deger' })).status,
+  200,
+  'env doğru + DB farklı -> 200',
+);
+esit(
+  (await postla(webhookGovdesi, { 'x-bildirim-anahtari': 'hicbiri' })).status,
+  401,
+  'ikisi de değil -> 401',
+);
+
+// hiç aday yoksa kontrol atlanır
 Deno.env.delete('BILDIRIM_ANAHTARI');
-esit((await postla(webhookGovdesi)).status, 200, 'anahtar tanımsızsa kontrol atlanır -> 200');
+dbAnahtari = null;
+esit((await postla(webhookGovdesi)).status, 200, 'hiç sır tanımlı değilse kontrol atlanır -> 200');
 
 // Resend hata verirse
 taklitDurum = 500;

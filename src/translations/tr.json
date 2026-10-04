@@ -65,6 +65,31 @@
       "team": "Takım Üyesi"
     }
   },
+  "teklametraj": {
+    "eyebrow": "SEBA Yazılım",
+    "title": "TeklaMetraj — Çelik Metraj Çıkarıcı",
+    "description": "Tekla Structures modelinden çelik profil ve platina metrajını Excel tablosu olarak üreten, kendi projelerimizde kullandığımız araç.",
+    "name": "TeklaMetraj",
+    "version": "Sürüm 1.0",
+    "lead": "Tekla Structures 2025 modelindeki tüm çelik parçaları okur; profil ve platina metrajını tek Excel sayfasında iki tablo halinde üretir. Profillerin yanındaki tik ile bir profili platina olarak işaretleyip tek tuşla tabloyu yeniden düzenleyebilirsiniz.",
+    "f1": "Tekla 2025 modelindeki tüm çelik parçaları okur; profil ve platina metrajını tek tabloda toplar",
+    "f2": "Boy adedi stok çubuk boyuna göre hesaplanır: profil 12 m; kutu profil, boru ve köşebentte 6 m",
+    "f3": "Standart dışı köşebentler (EN 10056 listesinde olmayan L kesitler) otomatik olarak platina metrajına aktarılır",
+    "f4": "Boya miktarı gerçek sarfiyat formülüyle hesaplanır: DFT, katı madde oranı, yoğunluk ve kayıp faktörü arayüzden ayarlanır",
+    "f5": "Bir profili tik ile platina işaretleyip tabloyu tek tuşla yeniden düzenleyebilirsiniz",
+    "f6": "Excel'de \"Platina (x)\" sütununu doldurup geri okutabilirsiniz; işaretler korunur",
+    "howTitle": "Kurulum (3 adım)",
+    "how1": "Kurulum dosyasını indirip çalıştırın",
+    "how2": "Kurulum programı Tekla'nın extensions klasörüne kendisi yerleştirir",
+    "how3": "Tekla'yı açıp modeli yükleyin, sonra TeklaMetraj'ı başlatın",
+    "downloadLabel": "Ücretsiz indir",
+    "sizeValue": "1,4 MB",
+    "reqValue": "Windows 10 / 11 (64-bit) — Tekla Structures 2025 gerekir. Ek .NET kurulumu gerekmez.",
+    "download": "İndir",
+    "manual": "Kurulum, Başlat menüsüne kullanım kılavuzu kısayolu ekler.",
+    "verified": "Metraj motoru 33 otomatik test ile doğrulanmıştır.",
+    "note": "Mühendislik metraj aracıdır; nihai metrajın sorumluluğu kullanıcıya aittir."
+  },
   "software": {
     "eyebrow": "SEBA Yazılım",
     "title": "Mühendislik Yazılımlarımız",
