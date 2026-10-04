@@ -28,3 +28,7 @@ dist-ssr
 *.sln
 *.sw?
 
+# --- Yerel doğrulama/teşhis çıktıları (repoya girmemeli) ---
+/_gecici/
+deno.lock
+
