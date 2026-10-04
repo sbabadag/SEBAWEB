@@ -73,6 +73,14 @@ begin
     url     := 'https://djxgtphcvjshkeccnrvj.supabase.co/functions/v1/iletisim-bildirim',
     headers := jsonb_build_object(
                  'Content-Type',        'application/json',
+                 -- ⚠️ ZORUNLU: Edge Function geçidi, Authorization (veya apikey)
+                 -- başlığı olmayan isteği şu hatayla reddediyor:
+                 --   {"code":"UNAUTHORIZED_NO_AUTH_HEADER"}
+                 -- Aşağıdaki anahtar HERKESE AÇIK olan publishable anahtardır;
+                 -- sitenin paketinde de görünür, gizli değildir. Geçidi geçmek
+                 -- için yeterlidir; asıl koruma aşağıdaki x-bildirim-anahtari.
+                 'Authorization',       'Bearer sb_publishable_21i-tIipjtLEvDhO8iu9JA_rgedvY6p',
+                 'apikey',              'sb_publishable_21i-tIipjtLEvDhO8iu9JA_rgedvY6p',
                  'x-bildirim-anahtari', coalesce(gizli, '')
                ),
     body    := jsonb_build_object(
