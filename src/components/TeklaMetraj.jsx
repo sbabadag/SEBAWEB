@@ -14,7 +14,7 @@ const DOWNLOAD_URL = '/indir/TeklaMetraj-Setup-win-x64.exe';
 const TeklaMetraj = () => {
   const { t } = useLanguage();
 
-  const features = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6'];
+  const features = ['f1', 'f2', 'f3', 'f4', 'f5', 'f6', 'f7', 'f8'];
   const steps = ['how1', 'how2', 'how3'];
 
   return (
