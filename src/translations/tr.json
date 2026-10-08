@@ -97,7 +97,7 @@
     "title": "Mühendislik Yazılımlarımız",
     "description": "Kendi projelerimizde geliştirdiğimiz ve günlük iş akışımızda kullandığımız mühendislik araçlarını ücretsiz paylaşıyoruz.",
     "name": "Kompozit Kiriş Tasarımı",
-    "version": "Sürüm 1.1",
+    "version": "Sürüm 1.2",
     "lead": "Nervürlü (trapez sac) döşemeye oturan kompozit çelik-beton kirişlerin TS EN 1994-1-1 (Eurocode 4) ve Türkiye Ulusal Eki'ne göre tasarımını yapan masaüstü uygulaması. Kesit tesirlerini kendisi hesaplar, tüm IPE/HEA kesitlerini deneyerek ağırlıkça en hafif çözümü bulur ve renkli Word raporu üretir.",
     "f1": "Zati yükler otomatik hesaplanır (çelik + beton + trapez sac); siz yalnızca ekstra zati ve hareketli yükü girersiniz",
     "f2": "37 IPE/HEA kesiti denenir, tüm kontrolleri sağlayan en hafif kesit seçilir",
@@ -114,8 +114,8 @@
     "reqValue": "Windows 10 / 11 (64-bit) — .NET kurulumu gerekmez",
     "download": "İndir",
     "releases": "Tüm sürümler ve sürüm notları",
-    "manual": "Kurulum paketinin içinde 625 satırlık kullanım kılavuzu bulunur.",
-    "verified": "102 otomatik test ile doğrulanmış hesap çekirdeği.",
+    "manual": "Kurulum paketinin içinde 635 satırlık kullanım kılavuzu bulunur.",
+    "verified": "105 otomatik test ile doğrulanmış hesap çekirdeği.",
     "note": "Mühendislik hesap aracıdır; nihai tasarımın sorumluluğu kullanıcı mühendise aittir."
   },
   "admin": {
